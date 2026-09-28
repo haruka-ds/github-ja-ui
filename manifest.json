@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub JA UI",
+  "version": "0.1.0",
+  "description": "GitHubの操作を、意味が分かる日本語で案内します。",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "popup.html", "default_title": "GitHub JA UI" }
+}
