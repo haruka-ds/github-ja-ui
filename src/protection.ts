@@ -46,7 +46,7 @@ const uiContainerSelector = [
 ].join(',');
 
 const uiControlSelector =
-  'button, summary, [role="button"], [role="tab"], [role="menuitem"]';
+  'button, summary, [role="button"], [role="tab"], [role="menuitem"], a[data-component="Button"]';
 
 function isKnownUiLink(link: Element): boolean {
   const href = link.getAttribute('href');
@@ -69,6 +69,11 @@ function isKnownUiLink(link: Element): boolean {
     /^\/[^/]+\/[^/]+\/(issues|pulls|actions|projects|settings|wiki|security|pulse|discussions|branches|tags|releases|commits)(\/|$)/.test(
       path,
     )
+  )
+    return true;
+  if (
+    /^\/[^/]+\/?$/.test(path) &&
+    link.closest('nav[aria-label="User profile"]')
   )
     return true;
   return (
@@ -94,7 +99,8 @@ export function isTrustedUiElement(element: Element): boolean {
   if (link)
     return (
       !isProtectedElement(link) &&
-      !!link.closest(uiContainerSelector) &&
+      (!!link.closest(uiContainerSelector) ||
+        link.matches('a[data-component="Link"][href="/search/advanced"]')) &&
       isKnownUiLink(link)
     );
   return !!element.closest(uiContainerSelector);

@@ -41,7 +41,7 @@ export function observeUi(
     childList: true,
     characterData: true,
     attributes: true,
-    attributeFilter: ['title', 'aria-label'],
+    attributeFilter: ['title', 'aria-label', 'hidden', 'aria-hidden'],
   });
   engine.scan(root);
   return observer;

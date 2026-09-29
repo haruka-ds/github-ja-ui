@@ -91,4 +91,29 @@ describe('translation engine', () => {
     expect(dialog.querySelector('.comment-body')?.textContent).toBe('Fork');
     observer.disconnect();
   });
+
+  it('translates a menu when GitHub reveals it', async () => {
+    document.body.innerHTML = '<nav><div hidden><a href="/example/project/issues">Issues</a></div></nav>';
+    const engine = new TranslationEngine();
+    const observer = observeUi(engine, document.body);
+    expect(document.querySelector('a')?.textContent).toBe('Issues');
+    document.querySelector('div')!.removeAttribute('hidden');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.querySelector('a')?.textContent).toBe('課題と相談');
+    observer.disconnect();
+  });
+
+  it('covers profile tabs and official search actions', () => {
+    document.body.innerHTML = `
+      <nav aria-label="User profile"><a href="/haruka-ds">Overview</a><a href="/haruka-ds?tab=repositories">Repositories</a></nav>
+      <a data-component="Link" href="/search/advanced">Advanced search</a>
+      <a data-component="Button" href="/login?return_to=search">Star</a>
+      <div class="markdown-body"><a data-component="Button" href="/login">Star</a></div>`;
+    const engine = new TranslationEngine();
+    engine.scan(document.body);
+    expect(document.querySelector('nav')?.textContent).toBe('概要リポジトリ一覧');
+    expect(document.querySelector('a[href="/search/advanced"]')?.textContent).toBe('詳細検索');
+    expect(document.querySelector('a[data-component="Button"]')?.textContent).toBe('お気に入りに保存');
+    expect(document.querySelector('.markdown-body')?.textContent).toBe('Star');
+  });
 });
