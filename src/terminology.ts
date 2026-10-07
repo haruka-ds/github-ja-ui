@@ -2,12 +2,34 @@ export type Term = {
   original: string;
   label: string;
   description?: string;
+  contexts?: readonly ('home' | 'notifications' | 'settings')[];
 };
 
 // Exact, context-independent UI strings only. User-authored text is filtered separately.
 export const terms: readonly Term[] = [
-  { original: 'Home', label: 'ホーム' },
-  { original: 'Dashboard', label: 'ホーム' },
+  { original: 'Home', label: 'ホーム', contexts: ['home'] },
+  { original: 'Dashboard', label: 'ホーム', contexts: ['home'] },
+  { original: 'Feed', label: 'フィード', contexts: ['home'] },
+  {
+    original: 'Top repositories',
+    label: 'よく使うリポジトリ',
+    contexts: ['home'],
+  },
+  {
+    original: 'All repositories',
+    label: 'すべてのリポジトリ',
+    contexts: ['home'],
+  },
+  {
+    original: 'Latest from our changelog',
+    label: 'GitHub の最近の更新',
+    contexts: ['home'],
+  },
+  { original: 'Ask', label: '質問する', contexts: ['home'] },
+  { original: 'Debug', label: '問題を調べる', contexts: ['home'] },
+  { original: 'Agent', label: 'AI に作業を頼む', contexts: ['home'] },
+  { original: 'Create issue', label: '課題や相談を作成', contexts: ['home'] },
+  { original: 'Write code', label: 'コードを書く', contexts: ['home'] },
   { original: 'Explore', label: '探す' },
   { original: 'Search', label: '検索' },
   { original: 'Advanced search', label: '詳細検索' },
@@ -21,12 +43,105 @@ export const terms: readonly Term[] = [
   { original: 'Follow', label: 'フォローする' },
   { original: 'Unfollow', label: 'フォローを解除' },
   { original: 'Stars', label: '保存した項目' },
-  { original: 'Settings', label: '設定' },
+  { original: 'Settings', label: '設定', contexts: ['settings'] },
+  {
+    original: 'Public profile',
+    label: '公開プロフィール',
+    contexts: ['settings'],
+  },
+  { original: 'Account', label: 'アカウント', contexts: ['settings'] },
+  { original: 'Appearance', label: '表示', contexts: ['settings'] },
+  {
+    original: 'Accessibility',
+    label: 'アクセシビリティ',
+    contexts: ['settings'],
+  },
+  {
+    original: 'Billing and licensing',
+    label: '請求とライセンス',
+    contexts: ['settings'],
+  },
+  { original: 'Emails', label: 'メールアドレス', contexts: ['settings'] },
+  {
+    original: 'Password and authentication',
+    label: 'パスワードと認証',
+    contexts: ['settings'],
+  },
+  { original: 'Sessions', label: 'ログイン中の端末', contexts: ['settings'] },
+  {
+    original: 'SSH and GPG keys',
+    label: 'SSH・GPG キー',
+    contexts: ['settings'],
+  },
+  { original: 'Credentials', label: '認証情報', contexts: ['settings'] },
+  { original: 'Organizations', label: '組織', contexts: ['settings'] },
+  { original: 'Enterprises', label: '企業アカウント', contexts: ['settings'] },
+  { original: 'Moderation', label: '管理と制限', contexts: ['settings'] },
+  { original: 'Codespaces', label: 'クラウド開発環境', contexts: ['settings'] },
+  { original: 'Packages', label: 'パッケージ', contexts: ['settings'] },
+  { original: 'Copilot', label: 'Copilot', contexts: ['settings'] },
+  { original: 'Pages', label: 'Web ページ公開', contexts: ['settings'] },
+  { original: 'Name', label: '名前', contexts: ['settings'] },
+  {
+    original: 'Profile picture',
+    label: 'プロフィール画像',
+    contexts: ['settings'],
+  },
+  {
+    original: 'Public email',
+    label: '公開メールアドレス',
+    contexts: ['settings'],
+  },
+  { original: 'Bio', label: '自己紹介', contexts: ['settings'] },
+  { original: 'Pronouns', label: '代名詞', contexts: ['settings'] },
+  {
+    original: 'Social accounts',
+    label: 'SNS アカウント',
+    contexts: ['settings'],
+  },
   { original: 'Sign out', label: 'ログアウト' },
-  { original: 'Notifications', label: '通知' },
-  { original: 'Inbox', label: '受信箱' },
-  { original: 'Done', label: '完了' },
-  { original: 'Saved', label: '保存済み' },
+  {
+    original: 'Notifications',
+    label: '通知',
+    contexts: ['notifications', 'settings'],
+  },
+  { original: 'Inbox', label: '受信箱', contexts: ['notifications'] },
+  { original: 'Done', label: '完了', contexts: ['notifications'] },
+  { original: 'Saved', label: '保存済み', contexts: ['notifications'] },
+  { original: 'All', label: 'すべて', contexts: ['notifications'] },
+  { original: 'Unread', label: '未読', contexts: ['notifications'] },
+  {
+    original: 'Search notifications',
+    label: '通知を検索',
+    contexts: ['notifications'],
+  },
+  { original: 'Sort by', label: '並べ替え', contexts: ['notifications'] },
+  { original: 'Group by', label: 'グループ分け', contexts: ['notifications'] },
+  { original: 'Assigned', label: '自分が担当', contexts: ['notifications'] },
+  { original: 'Participating', label: '参加中', contexts: ['notifications'] },
+  { original: 'Mentioned', label: '自分への言及', contexts: ['notifications'] },
+  {
+    original: 'Team mentioned',
+    label: 'チームへの言及',
+    contexts: ['notifications'],
+  },
+  {
+    original: 'Review requested',
+    label: 'レビュー依頼',
+    contexts: ['notifications'],
+  },
+  {
+    original: 'Manage notifications',
+    label: '通知を管理',
+    contexts: ['notifications'],
+  },
+  { original: 'Dismiss', label: '閉じる', contexts: ['notifications'] },
+  { original: 'Get started', label: '使い始める', contexts: ['notifications'] },
+  {
+    original: 'All caught up!',
+    label: '新しい通知はありません',
+    contexts: ['notifications'],
+  },
   { original: 'New', label: '新規作成' },
   { original: 'Create', label: '作成' },
   { original: 'Cancel', label: 'キャンセル' },
@@ -46,17 +161,19 @@ export const terms: readonly Term[] = [
   { original: 'Next', label: '次へ' },
   { original: 'Previous', label: '前へ' },
   { original: 'Learn more', label: '詳しく見る' },
-  { original: 'View all', label: 'すべて見る' },
+  { original: 'View all', label: 'すべて見る', contexts: ['home'] },
   { original: 'Code', label: 'ファイル' },
   {
     original: 'Issues',
     label: '課題と相談',
+    contexts: ['home'],
     description:
       '不具合の報告や作業の相談をまとめる場所です。GitHub では Issues と呼びます。',
   },
   {
     original: 'Pull requests',
     label: '変更の提案',
+    contexts: ['home'],
     description:
       '変更を取り込んでもらうための提案です。GitHub では Pull request と呼びます。',
   },
@@ -179,5 +296,23 @@ export const terms: readonly Term[] = [
 export const dictionary = new Map(terms.map((term) => [term.original, term]));
 
 export function translate(value: string): Term | undefined {
-  return dictionary.get(value.trim());
+  const original = value.trim();
+  const exact = dictionary.get(original);
+  if (exact) return exact;
+  const greeting =
+    /^(Good morning|Good afternoon|Good evening), ([A-Za-z0-9-]{1,39})!$/.exec(
+      original,
+    );
+  if (!greeting) return undefined;
+  const japanese =
+    greeting[1] === 'Good morning'
+      ? 'おはようございます'
+      : greeting[1] === 'Good afternoon'
+        ? 'こんにちは'
+        : 'こんばんは';
+  return {
+    original,
+    label: `${japanese}、${greeting[2]} さん！`,
+    contexts: ['home'],
+  };
 }

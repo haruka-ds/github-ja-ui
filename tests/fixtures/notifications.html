@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <body>
+    <header>
+      <a href="/notifications">Notifications</a
+      ><span id="username">haruka-ds</span>
+    </header>
+    <main>
+      <h1>Notifications</h1>
+      <nav>
+        <a href="/notifications">Inbox</a
+        ><a href="/notifications?query=saved">Saved</a
+        ><a href="/notifications?query=done">Done</a>
+      </nav>
+      <div role="toolbar">
+        <button>All</button><button>Unread</button><button>Sort by</button
+        ><button>Group by</button><button>Filters</button>
+      </div>
+      <input
+        id="notification-search"
+        type="search"
+        aria-label="Search notifications"
+        placeholder="Search notifications"
+        value="Issues"
+      />
+      <div role="menu">
+        <button>Assigned</button><button>Participating</button
+        ><button>Mentioned</button><button>Team mentioned</button
+        ><button>Review requested</button>
+      </div>
+      <button>Manage notifications</button><button>Dismiss</button>
+      <h2>All caught up!</h2>
+      <article class="comment-body" id="user-comment">Notifications</article>
+      <a id="notification-subject" href="/haruka-ds/github-ja-ui/issues/123"
+        >Settings</a
+      >
+    </main>
+  </body>
+</html>

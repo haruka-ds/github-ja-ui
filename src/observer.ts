@@ -24,10 +24,44 @@ export function observeUi(
     pending.add(node);
     schedule();
   };
+  const options: MutationObserverInit = {
+    subtree: true,
+    childList: true,
+    characterData: true,
+    attributes: true,
+    attributeFilter: [
+      'title',
+      'aria-label',
+      'placeholder',
+      'hidden',
+      'aria-hidden',
+      'role',
+      'href',
+    ],
+  };
+  const observed = new WeakSet<Node>();
+  const registerShadows = (node: Node) => {
+    if (!(node instanceof Element) && !(node instanceof DocumentFragment))
+      return;
+    const elements =
+      node instanceof Element
+        ? [node, ...node.querySelectorAll('*')]
+        : [...node.querySelectorAll('*')];
+    for (const element of elements) {
+      if (!element.shadowRoot || observed.has(element.shadowRoot)) continue;
+      observed.add(element.shadowRoot);
+      observer.observe(element.shadowRoot, options);
+      engine.scan(element.shadowRoot);
+      registerShadows(element.shadowRoot);
+    }
+  };
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type === 'childList') {
-        for (const node of mutation.addedNodes) queue(node);
+        for (const node of mutation.addedNodes) {
+          registerShadows(node);
+          queue(node);
+        }
         if (mutation.removedNodes.length) {
           hasRemovals = true;
           schedule();
@@ -36,13 +70,8 @@ export function observeUi(
       else queue(mutation.target);
     }
   });
-  observer.observe(root, {
-    subtree: true,
-    childList: true,
-    characterData: true,
-    attributes: true,
-    attributeFilter: ['title', 'aria-label', 'hidden', 'aria-hidden'],
-  });
+  observer.observe(root, options);
+  registerShadows(root);
   engine.scan(root);
   return observer;
 }

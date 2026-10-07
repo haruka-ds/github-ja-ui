@@ -27,10 +27,14 @@ export class TranslationEngine {
     }
     if (
       root.nodeType !== Node.ELEMENT_NODE &&
-      root.nodeType !== Node.DOCUMENT_NODE
+      root.nodeType !== Node.DOCUMENT_NODE &&
+      root.nodeType !== Node.DOCUMENT_FRAGMENT_NODE
     )
       return;
-    if (root instanceof Element) this.processElement(root);
+    if (root instanceof Element) {
+      this.processElement(root);
+      if (root.shadowRoot) this.scan(root.shadowRoot);
+    }
     const walker = document.createTreeWalker(
       root,
       NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
@@ -38,17 +42,20 @@ export class TranslationEngine {
     while (walker.nextNode()) {
       const node = walker.currentNode;
       if (node.nodeType === Node.TEXT_NODE) this.processText(node as Text);
-      else this.processElement(node as Element);
+      else {
+        const element = node as Element;
+        this.processElement(element);
+        if (element.shadowRoot) this.scan(element.shadowRoot);
+      }
     }
   }
 
   private processText(node: Text): void {
-    if (!shouldTranslate(node)) return;
     const current = node.nodeValue ?? '';
     const existing = this.texts.get(node);
     if (existing && current === existing.applied) return;
     const term = translate(current);
-    if (!term) return;
+    if (!term || !shouldTranslate(node, term)) return;
     const leading = current.match(/^\s*/)?.[0] ?? '';
     const trailing = current.match(/\s*$/)?.[0] ?? '';
     const applied = `${leading}${term.label}${trailing}`;
@@ -61,7 +68,7 @@ export class TranslationEngine {
       );
       if (
         control &&
-        shouldTranslateAttribute(control, 'title') &&
+        shouldTranslateAttribute(control, 'title', term) &&
         !control.hasAttribute('title')
       ) {
         this.applyAttribute(control, 'title', explanation(term)!);
@@ -70,17 +77,19 @@ export class TranslationEngine {
   }
 
   private processElement(element: Element): void {
-    for (const attribute of ['aria-label', 'title']) {
-      if (!shouldTranslateAttribute(element, attribute)) continue;
+    for (const attribute of ['aria-label', 'title', 'placeholder']) {
       const current = element.getAttribute(attribute);
       if (!current) continue;
       const existing = this.attributes.get(element)?.get(attribute);
       if (existing && current === existing.applied) continue;
       const term = translate(current);
-      if (term) {
-        const applied = attribute === 'title'
-          ? (explanation(term) ?? term.label)
-          : (term.description ? `${term.label}（${term.original}）` : term.label);
+      if (term && shouldTranslateAttribute(element, attribute, term)) {
+        const applied =
+          attribute === 'title'
+            ? (explanation(term) ?? term.label)
+            : term.description
+              ? `${term.label}（${term.original}）`
+              : term.label;
         this.applyAttribute(element, attribute, applied);
       }
     }

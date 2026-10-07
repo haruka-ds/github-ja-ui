@@ -30,6 +30,7 @@ const protectedSelector = [
   '.commit-message',
   '.release-body',
   '.discussion-comment',
+  'article',
   '.user-mention',
   '[data-github-ja-ui]',
 ].join(',');
@@ -46,9 +47,32 @@ const uiContainerSelector = [
 ].join(',');
 
 const uiControlSelector =
-  'button, summary, [role="button"], [role="tab"], [role="menuitem"], a[data-component="Button"]';
+  'button, summary, [role="button"], [role="tab"], [role="menuitem"]';
 
-function isKnownUiLink(link: Element): boolean {
+type PageContext = NonNullable<Term['contexts']>[number];
+
+function pageContext(): PageContext | undefined {
+  if (location.pathname === '/') return 'home';
+  if (location.pathname.startsWith('/notifications')) return 'notifications';
+  if (location.pathname.startsWith('/settings')) return 'settings';
+  return undefined;
+}
+
+function closestAcrossRoots(
+  element: Element,
+  selector: string,
+): Element | null {
+  let current: Element | null = element;
+  while (current) {
+    const match: Element | null = current.closest(selector);
+    if (match) return match;
+    const root: Node = current.getRootNode();
+    current = root instanceof ShadowRoot ? root.host : null;
+  }
+  return null;
+}
+
+function isKnownUiLink(link: Element, term?: Term): boolean {
   const href = link.getAttribute('href');
   if (!href) return false;
   let path: string;
@@ -60,63 +84,106 @@ function isKnownUiLink(link: Element): boolean {
     return false;
   }
   if (
+    path === '/' ||
     /^\/(settings|notifications|issues|pulls|explore|dashboard|search)(\/|$)/.test(
       path,
     )
   )
     return true;
   if (
-    /^\/[^/]+\/[^/]+\/(issues|pulls|actions|projects|settings|wiki|security|pulse|discussions|branches|tags|releases|commits)(\/|$)/.test(
+    /^\/[^/]+\/[^/]+\/(issues|pulls|actions|projects|settings|wiki|security|pulse|discussions|branches|tags|releases|commits)\/?$/.test(
       path,
     )
   )
     return true;
   if (
     /^\/[^/]+\/?$/.test(path) &&
-    link.closest('nav[aria-label="User profile"]')
+    closestAcrossRoots(link, 'nav[aria-label="User profile"]')
+  )
+    return true;
+  if (
+    term?.original === 'Code' &&
+    /^\/[^/]+\/[^/]+\/?$/.test(path) &&
+    closestAcrossRoots(
+      link,
+      'nav[aria-label*="Repository"], [role="navigation"][aria-label*="Repository"]',
+    )
   )
     return true;
   return (
-    /^\/[^/]+\/[^/]+\/?$/.test(path) &&
-    !!link.closest(
-      'nav[aria-label*="Repository"], [role="navigation"][aria-label*="Repository"]',
-    )
+    link.matches('a[data-component="Button"]') &&
+    ['Star', 'Unstar', 'Fork', 'Watch', 'Unwatch'].includes(
+      term?.original ?? '',
+    ) &&
+    path === '/login'
   );
 }
 
 export function isProtectedElement(element: Element): boolean {
-  if (element.closest(protectedSelector)) return true;
-  if (element.closest('[hidden], [aria-hidden="true"]')) return true;
+  if (closestAcrossRoots(element, protectedSelector)) return true;
+  if (closestAcrossRoots(element, '[hidden], [aria-hidden="true"]'))
+    return true;
   if (element instanceof HTMLElement && element.isContentEditable) return true;
   return false;
 }
 
-export function isTrustedUiElement(element: Element): boolean {
-  if (isProtectedElement(element)) return false;
-  const control = element.closest(uiControlSelector);
-  if (control) return !isProtectedElement(control);
-  const link = element.closest('a');
-  if (link)
-    return (
-      !isProtectedElement(link) &&
-      (!!link.closest(uiContainerSelector) ||
-        link.matches('a[data-component="Link"][href="/search/advanced"]')) &&
-      isKnownUiLink(link)
-    );
-  return !!element.closest(uiContainerSelector);
+function isPageScopedUi(element: Element, term?: Term): boolean {
+  const context = pageContext();
+  if (!context || !term?.contexts?.includes(context)) return false;
+  if (closestAcrossRoots(element, 'h1, h2, h3, h4, [role="heading"]'))
+    return true;
+  if (context === 'settings' && closestAcrossRoots(element, 'label'))
+    return true;
+  if (
+    context === 'home' &&
+    closestAcrossRoots(element, 'aside, [role="complementary"]')
+  )
+    return true;
+  if (
+    context === 'notifications' &&
+    closestAcrossRoots(element, '[role="toolbar"], [role="tablist"]')
+  )
+    return true;
+  return (
+    context === 'settings' &&
+    !!closestAcrossRoots(element, 'aside, [role="complementary"]')
+  );
 }
 
-export function shouldTranslate(node: Text): boolean {
+export function isTrustedUiElement(element: Element, term?: Term): boolean {
+  if (isProtectedElement(element)) return false;
+  const link = closestAcrossRoots(element, 'a');
+  if (link) return isKnownUiLink(link, term) && !isProtectedElement(link);
+  const control = element.closest(uiControlSelector);
+  if (control) return !isProtectedElement(control);
+  if (closestAcrossRoots(element, uiContainerSelector)) return true;
+  return isPageScopedUi(element, term);
+}
+
+export function shouldTranslate(node: Text, term?: Term): boolean {
   const parent = node.parentElement;
   if (!parent || !node.nodeValue?.trim()) return false;
   if (parent.closest('script, style, noscript, svg, title')) return false;
-  return isTrustedUiElement(parent);
+  return isTrustedUiElement(parent, term);
 }
 
 export function shouldTranslateAttribute(
   element: Element,
   attribute: string,
+  term?: Term,
 ): boolean {
-  if (attribute !== 'title' && attribute !== 'aria-label') return false;
-  return isTrustedUiElement(element);
+  if (!['title', 'aria-label', 'placeholder'].includes(attribute)) return false;
+  if (element.matches('input, textarea')) {
+    if (isProtectedElement(element.parentElement ?? element)) return false;
+    const context = pageContext();
+    return (
+      !!term &&
+      (context === 'notifications' ||
+        context === 'settings' ||
+        !!closestAcrossRoots(element, 'header, [role="search"]'))
+    );
+  }
+  if (attribute === 'placeholder') return false;
+  return isTrustedUiElement(element, term);
 }
+import type { Term } from './terminology';

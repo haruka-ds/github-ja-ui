@@ -15,3 +15,10 @@ void loadEnabled().then((enabled) => {
   engine.setEnabled(enabled);
   observeUi(engine);
 });
+
+for (const event of ['turbo:load', 'turbo:render', 'pjax:end']) {
+  document.addEventListener(event, () => engine.scan(document.documentElement));
+}
+window.addEventListener('popstate', () =>
+  engine.scan(document.documentElement),
+);

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GitHub JA UI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GitHubの操作を、意味が分かる日本語で案内します。",
   "permissions": ["storage"],
   "content_scripts": [

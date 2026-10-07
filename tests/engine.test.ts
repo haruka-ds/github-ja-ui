@@ -59,12 +59,15 @@ describe('translation engine', () => {
   });
 
   it('keeps the original concept in accessible labels and existing tooltips', () => {
-    document.body.innerHTML = '<button title="Fork" aria-label="Fork">Fork</button>';
+    document.body.innerHTML =
+      '<button title="Fork" aria-label="Fork">Fork</button>';
     const engine = new TranslationEngine();
     engine.scan(document.body);
     const button = document.querySelector('button')!;
     expect(button.getAttribute('aria-label')).toContain('Fork');
-    expect(button.getAttribute('title')).toContain('このリポジトリを自分のアカウントに複製');
+    expect(button.getAttribute('title')).toContain(
+      'このリポジトリを自分のアカウントに複製',
+    );
   });
 
   it('does not overwrite a GitHub update when restoring', () => {
@@ -93,7 +96,8 @@ describe('translation engine', () => {
   });
 
   it('translates a menu when GitHub reveals it', async () => {
-    document.body.innerHTML = '<nav><div hidden><a href="/example/project/issues">Issues</a></div></nav>';
+    document.body.innerHTML =
+      '<nav><div hidden><a href="/example/project/issues">Issues</a></div></nav>';
     const engine = new TranslationEngine();
     const observer = observeUi(engine, document.body);
     expect(document.querySelector('a')?.textContent).toBe('Issues');
@@ -111,9 +115,15 @@ describe('translation engine', () => {
       <div class="markdown-body"><a data-component="Button" href="/login">Star</a></div>`;
     const engine = new TranslationEngine();
     engine.scan(document.body);
-    expect(document.querySelector('nav')?.textContent).toBe('概要リポジトリ一覧');
-    expect(document.querySelector('a[href="/search/advanced"]')?.textContent).toBe('詳細検索');
-    expect(document.querySelector('a[data-component="Button"]')?.textContent).toBe('お気に入りに保存');
+    expect(document.querySelector('nav')?.textContent).toBe(
+      '概要リポジトリ一覧',
+    );
+    expect(
+      document.querySelector('a[href="/search/advanced"]')?.textContent,
+    ).toBe('詳細検索');
+    expect(
+      document.querySelector('a[data-component="Button"]')?.textContent,
+    ).toBe('お気に入りに保存');
     expect(document.querySelector('.markdown-body')?.textContent).toBe('Star');
   });
 });

@@ -1,8 +1,12 @@
 export const settingKey = 'enabled';
 
 export async function loadEnabled(): Promise<boolean> {
-  const result = await chrome.storage.local.get(settingKey);
-  return result[settingKey] !== false;
+  try {
+    const result = await chrome.storage.local.get(settingKey);
+    return result[settingKey] !== false;
+  } catch {
+    return true;
+  }
 }
 
 export async function saveEnabled(enabled: boolean): Promise<void> {

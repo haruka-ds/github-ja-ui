@@ -35,6 +35,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run test:e2e
 ```
 
 `src/terminology.ts` が辞書と概念説明、`src/protection.ts` が保護判定、`src/engine.ts` がテキストノードと属性の変換・復元、`src/observer.ts` が動的 UI の監視、`src/settings.ts` と `src/popup.ts` が設定を担当します。ビルド後の `dist/` をそのまま Chrome に読み込めます。
@@ -45,7 +46,7 @@ npm run build
 
 ## Manual QA
 
-2026-09-29 に Playwright Chromium で、拡張の読み込み、公開画面の Repository・Issues・Pull requests・Actions・Projects・Search・Profile、動的 UI、非表示メニューの表示、ON/OFF と再読込後の設定維持、ユーザーコンテンツの保護を自動確認しました。ページエラーはありませんでした。Notifications と Settings は未ログインではログイン画面へ移動するため、内部画面は未確認です。
+2026-10-07 にログイン後の Home・Notifications・Settings に近い固定 HTML を使い、Playwright Chromium で拡張の読み込み、代表ラベルの翻訳、名前・投稿内容の保護、ON/OFF と再読込、SPA 遷移、動的 UI、open shadow DOM を自動確認しました。`npm run test:e2e` は最新の `dist/` を作成してから Chromium を起動します。固定 HTML は実際のログイン済み GitHub から採取したものではないため、実サイトの表示確認は別途必要です。
 
 人間による目視確認は未実施です。リリース前に次を確認してください。
 
