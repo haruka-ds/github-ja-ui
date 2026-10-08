@@ -3,6 +3,7 @@ export type Term = {
   label: string;
   description?: string;
   contexts?: readonly ('home' | 'notifications' | 'settings')[];
+  surface?: 'page-copy';
 };
 
 // Exact, context-independent UI strings only. User-authored text is filtered separately.
@@ -10,6 +11,35 @@ export const terms: readonly Term[] = [
   { original: 'Home', label: 'ホーム', contexts: ['home'] },
   { original: 'Dashboard', label: 'ホーム', contexts: ['home'] },
   { original: 'Feed', label: 'フィード', contexts: ['home'] },
+  { original: 'All issues', label: 'すべての課題と相談', contexts: ['home'] },
+  {
+    original: 'All pull requests',
+    label: 'すべての変更の提案',
+    contexts: ['home'],
+  },
+  {
+    original: 'No pull requests found, try a different filter.',
+    label: '変更の提案は見つかりませんでした。絞り込みを変えてみてください。',
+    contexts: ['home'],
+    surface: 'page-copy',
+  },
+  {
+    original: 'No issues found, try a different filter.',
+    label: '課題と相談は見つかりませんでした。絞り込みを変えてみてください。',
+    contexts: ['home'],
+    surface: 'page-copy',
+  },
+  {
+    original: 'Ask anything or type @ to add context',
+    label: '質問を入力。@ で関連情報を追加できます',
+    contexts: ['home'],
+  },
+  {
+    original: 'Agent sessions',
+    label: 'AI に依頼した作業',
+    contexts: ['home'],
+  },
+  { original: 'Chat commands', label: 'AI への依頼', contexts: ['home'] },
   {
     original: 'Top repositories',
     label: 'よく使うリポジトリ',
@@ -30,6 +60,20 @@ export const terms: readonly Term[] = [
   { original: 'Agent', label: 'AI に作業を頼む', contexts: ['home'] },
   { original: 'Create issue', label: '課題や相談を作成', contexts: ['home'] },
   { original: 'Write code', label: 'コードを書く', contexts: ['home'] },
+  {
+    original: 'Git',
+    label: 'Git',
+    contexts: ['home'],
+    description: 'ファイルの変更履歴を記録・管理する仕組みです。',
+  },
+  { original: 'Show more', label: 'もっと見る', contexts: ['home'] },
+  { original: 'Marketplace', label: 'ツールを探す', contexts: ['home'] },
+  {
+    original: 'MCP registry',
+    label: 'MCP registry',
+    contexts: ['home'],
+    description: 'AI に追加できる機能を探す場所です。MCP は接続の規格名です。',
+  },
   { original: 'Explore', label: '探す' },
   { original: 'Search', label: '検索' },
   { original: 'Advanced search', label: '詳細検索' },
@@ -77,9 +121,19 @@ export const terms: readonly Term[] = [
   { original: 'Organizations', label: '組織', contexts: ['settings'] },
   { original: 'Enterprises', label: '企業アカウント', contexts: ['settings'] },
   { original: 'Moderation', label: '管理と制限', contexts: ['settings'] },
-  { original: 'Codespaces', label: 'クラウド開発環境', contexts: ['settings'] },
+  {
+    original: 'Codespaces',
+    label: 'Codespaces',
+    contexts: ['home', 'settings'],
+    description: 'ブラウザから使える GitHub の開発環境です。',
+  },
   { original: 'Packages', label: 'パッケージ', contexts: ['settings'] },
-  { original: 'Copilot', label: 'Copilot', contexts: ['settings'] },
+  {
+    original: 'Copilot',
+    label: 'Copilot',
+    contexts: ['home', 'settings'],
+    description: 'GitHub の AI アシスタントです。',
+  },
   { original: 'Pages', label: 'Web ページ公開', contexts: ['settings'] },
   { original: 'Name', label: '名前', contexts: ['settings'] },
   {
@@ -114,6 +168,13 @@ export const terms: readonly Term[] = [
     original: 'Search notifications',
     label: '通知を検索',
     contexts: ['notifications'],
+    surface: 'page-copy',
+  },
+  {
+    original: 'Notification filters',
+    label: '通知の絞り込み',
+    contexts: ['notifications'],
+    surface: 'page-copy',
   },
   { original: 'Sort by', label: '並べ替え', contexts: ['notifications'] },
   { original: 'Group by', label: 'グループ分け', contexts: ['notifications'] },
@@ -137,6 +198,45 @@ export const terms: readonly Term[] = [
   },
   { original: 'Dismiss', label: '閉じる', contexts: ['notifications'] },
   { original: 'Get started', label: '使い始める', contexts: ['notifications'] },
+  { original: 'Folders', label: 'フォルダー', contexts: ['notifications'] },
+  {
+    original: 'Customize filters',
+    label: '絞り込みをカスタマイズ',
+    contexts: ['notifications'],
+  },
+  {
+    original: 'Add new filter',
+    label: '絞り込みを追加',
+    contexts: ['notifications'],
+  },
+  {
+    original: 'Clear out the clutter.',
+    label: '通知を整理しましょう。',
+    contexts: ['notifications'],
+  },
+  {
+    original:
+      'Get the most out of your new inbox by quickly and easily marking all of your previously read notifications as done.',
+    label: '既読の通知をまとめて完了にすると、受信箱を整理できます。',
+    contexts: ['notifications'],
+    surface: 'page-copy',
+  },
+  {
+    original: 'Get started clearing your notifications',
+    label: '通知の整理を始める',
+    contexts: ['notifications'],
+  },
+  {
+    original: 'Notifications by date',
+    label: '日付別の通知',
+    contexts: ['notifications'],
+  },
+  {
+    original: 'Take a break, write some code, do what you do best.',
+    label: 'ひと息ついて、自分の作業に集中しましょう。',
+    contexts: ['notifications'],
+    surface: 'page-copy',
+  },
   {
     original: 'All caught up!',
     label: '新しい通知はありません',
@@ -192,7 +292,11 @@ export const terms: readonly Term[] = [
   { original: 'Wiki', label: 'Wiki' },
   { original: 'Security', label: 'セキュリティ' },
   { original: 'Insights', label: '分析' },
-  { original: 'Discussions', label: 'ディスカッション' },
+  {
+    original: 'Discussions',
+    label: '話し合い',
+    description: '質問やアイデアを共有して話し合う場所です。',
+  },
   {
     original: 'Fork',
     label: '自分用にコピー',
@@ -296,9 +400,23 @@ export const terms: readonly Term[] = [
 export const dictionary = new Map(terms.map((term) => [term.original, term]));
 
 export function translate(value: string): Term | undefined {
-  const original = value.trim();
+  const original = value.trim().replace(/\s+/g, ' ');
   const exact = dictionary.get(original);
   if (exact) return exact;
+  const sort = /^Sort by: (Newest to oldest|Oldest to newest)$/.exec(original);
+  if (sort)
+    return {
+      original,
+      label: `並べ替え: ${sort[1] === 'Newest to oldest' ? '新しい順' : '古い順'}`,
+      contexts: ['notifications'],
+    };
+  const group = /^Group by: (Date|Repository|None)$/.exec(original);
+  if (group)
+    return {
+      original,
+      label: `グループ分け: ${{ Date: '日付', Repository: 'リポジトリ', None: 'なし' }[group[1] as 'Date' | 'Repository' | 'None']}`,
+      contexts: ['notifications'],
+    };
   const greeting =
     /^(Good morning|Good afternoon|Good evening), ([A-Za-z0-9-]{1,39})!$/.exec(
       original,
@@ -314,5 +432,6 @@ export function translate(value: string): Term | undefined {
     original,
     label: `${japanese}、${greeting[2]} さん！`,
     contexts: ['home'],
+    surface: 'page-copy',
   };
 }

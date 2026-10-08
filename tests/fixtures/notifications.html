@@ -15,7 +15,12 @@
       <div role="toolbar">
         <button>All</button><button>Unread</button><button>Sort by</button
         ><button>Group by</button><button>Filters</button>
+        <button id="sort">
+          <span>Sort by:</span> <span>Newest to oldest</span>
+        </button>
+        <button id="group"><span>Group by:</span> <span>Date</span></button>
       </div>
+      <div id="search-label">Search notifications</div>
       <input
         id="notification-search"
         type="search"
@@ -29,7 +34,17 @@
         ><button>Review requested</button>
       </div>
       <button>Manage notifications</button><button>Dismiss</button>
+      <button aria-label="Customize filters" title="Add new filter">
+        Add new filter
+      </button>
+      <h2>Clear out the clutter.</h2>
+      <p id="clutter-copy">
+        Get the most out of your new inbox by quickly and easily marking all of
+        your previously read notifications as done.
+      </p>
+      <h2>Notifications by date</h2>
       <h2>All caught up!</h2>
+      <p id="inbox-copy">Take a break, write some code, do what you do best.</p>
       <article class="comment-body" id="user-comment">Notifications</article>
       <a id="notification-subject" href="/haruka-ds/github-ja-ui/issues/123"
         >Settings</a

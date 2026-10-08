@@ -85,7 +85,7 @@ function isKnownUiLink(link: Element, term?: Term): boolean {
   }
   if (
     path === '/' ||
-    /^\/(settings|notifications|issues|pulls|explore|dashboard|search)(\/|$)/.test(
+    /^\/(settings|notifications|issues|pulls|explore|dashboard|search|feed|repos|projects|discussions|codespaces|copilot|marketplace|mcp)(\/|$)/.test(
       path,
     )
   )
@@ -98,6 +98,10 @@ function isKnownUiLink(link: Element, term?: Term): boolean {
     return true;
   if (
     /^\/[^/]+\/?$/.test(path) &&
+    (['Your profile', 'Overview'].includes(term?.original ?? '') ||
+      (term?.original === 'Repositories' &&
+        new URL(href, location.href).searchParams.get('tab') ===
+          'repositories')) &&
     closestAcrossRoots(link, 'nav[aria-label="User profile"]')
   )
     return true;
@@ -130,6 +134,8 @@ export function isProtectedElement(element: Element): boolean {
 function isPageScopedUi(element: Element, term?: Term): boolean {
   const context = pageContext();
   if (!context || !term?.contexts?.includes(context)) return false;
+  if (term.surface === 'page-copy' && closestAcrossRoots(element, 'main'))
+    return true;
   if (closestAcrossRoots(element, 'h1, h2, h3, h4, [role="heading"]'))
     return true;
   if (context === 'settings' && closestAcrossRoots(element, 'label'))
@@ -173,9 +179,16 @@ export function shouldTranslateAttribute(
   term?: Term,
 ): boolean {
   if (!['title', 'aria-label', 'placeholder'].includes(attribute)) return false;
-  if (element.matches('input, textarea')) {
+  if (element.matches('input, textarea, [role="combobox"]')) {
     if (isProtectedElement(element.parentElement ?? element)) return false;
     const context = pageContext();
+    if (
+      context === 'home' &&
+      attribute === 'placeholder' &&
+      term?.original === 'Ask anything or type @ to add context' &&
+      closestAcrossRoots(element, 'main')
+    )
+      return true;
     return (
       !!term &&
       (context === 'notifications' ||

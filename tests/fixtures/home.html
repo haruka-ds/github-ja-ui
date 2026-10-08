@@ -5,9 +5,24 @@
       <a href="/">Home</a><a href="/pulls">Pull requests</a
       ><a href="/issues">Issues</a><span id="username">haruka-ds</span>
     </header>
+    <nav aria-label="Global navigation menu" id="expanded-menu">
+      <a href="/dashboard">Home</a><a href="/feed">Feed</a>
+      <a href="/issues">All issues</a>
+      <a href="/pulls">All pull requests</a>
+      <a href="/repos">All repositories</a>
+      <a href="/projects">Projects</a>
+      <a href="/discussions">Discussions</a>
+      <a href="/codespaces">Codespaces</a>
+      <a href="/copilot">Copilot</a>
+      <a href="/explore">Explore</a>
+      <a href="/marketplace">Marketplace</a>
+      <a href="/mcp">MCP registry</a>
+      <a id="menu-repository" href="/haruka-ds/Feed">Feed</a>
+      <button>Show more</button>
+    </nav>
     <main>
       <h1>Dashboard</h1>
-      <h2 id="greeting">Good evening, haruka-ds!</h2>
+      <span id="greeting">Good afternoon, haruka-ds!</span>
       <aside>
         <h2>Top repositories</h2>
         <a id="repo-name" href="/haruka-ds/Settings">Settings</a>
@@ -15,9 +30,17 @@
       </aside>
       <section>
         <h2>Feed</h2>
+        <textarea
+          id="copilot-prompt"
+          placeholder="Ask anything or type @ to add context"
+        >
+Issues</textarea>
         <button>Ask</button><button>Debug</button><button>Agent</button
         ><button>Create issue</button><button>Write code</button
-        ><a href="/issues">Issues</a><a href="/pulls">Pull requests</a>
+        ><button id="git">Git</button><a href="/issues">Issues</a
+        ><a href="/pulls">Pull requests</a>
+        <p id="no-pulls">No pull requests found, try a different filter.</p>
+        <p id="no-issues">No issues found, try a different filter.</p>
         <h2>Latest from our changelog</h2>
       </section>
       <article class="markdown-body" id="user-markdown">

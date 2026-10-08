@@ -1,9 +1,53 @@
 import { explanation } from './explanation';
 import { shouldTranslate, shouldTranslateAttribute } from './protection';
-import { translate } from './terminology';
+import { translate, type Term } from './terminology';
 
 type TextRecord = { original: string; applied: string };
 type AttributeRecord = { original: string | null; applied: string };
+
+function translateCompoundControlPart(node: Text): Term | undefined {
+  if (!location.pathname.startsWith('/notifications')) return undefined;
+  const control = node.parentElement?.closest('button, [role="button"]');
+  const full = control?.textContent?.replace(/\s+/g, ' ').trim();
+  const part = node.nodeValue?.trim();
+  if (!full || !part) return undefined;
+  const sort =
+    /^(?:Sort by:|並べ替え:)\s*(Newest to oldest|Oldest to newest)$/.exec(full);
+  if (sort) {
+    if (part === 'Sort by:')
+      return {
+        original: part,
+        label: '並べ替え:',
+        contexts: ['notifications'],
+      };
+    if (part === sort[1])
+      return {
+        original: part,
+        label: sort[1] === 'Newest to oldest' ? '新しい順' : '古い順',
+        contexts: ['notifications'],
+      };
+  }
+  const group = /^(?:Group by:|グループ分け:)\s*(Date|Repository|None)$/.exec(
+    full,
+  );
+  if (group) {
+    if (part === 'Group by:')
+      return {
+        original: part,
+        label: 'グループ分け:',
+        contexts: ['notifications'],
+      };
+    if (part === group[1])
+      return {
+        original: part,
+        label: { Date: '日付', Repository: 'リポジトリ', None: 'なし' }[
+          group[1] as 'Date' | 'Repository' | 'None'
+        ],
+        contexts: ['notifications'],
+      };
+  }
+  return undefined;
+}
 
 export class TranslationEngine {
   private readonly texts = new Map<Text, TextRecord>();
@@ -54,17 +98,18 @@ export class TranslationEngine {
     const current = node.nodeValue ?? '';
     const existing = this.texts.get(node);
     if (existing && current === existing.applied) return;
-    const term = translate(current);
+    const term = translate(current) ?? translateCompoundControlPart(node);
     if (!term || !shouldTranslate(node, term)) return;
     const leading = current.match(/^\s*/)?.[0] ?? '';
     const trailing = current.match(/\s*$/)?.[0] ?? '';
     const applied = `${leading}${term.label}${trailing}`;
-    if (current === applied) return;
-    this.texts.set(node, { original: current, applied });
-    node.nodeValue = applied;
+    if (current !== applied) {
+      this.texts.set(node, { original: current, applied });
+      node.nodeValue = applied;
+    }
     if (term.description) {
       const control = node.parentElement?.closest(
-        'button, summary, a, [role="button"], [role="tab"], [role="menuitem"]',
+        'button, summary, a, h1, h2, h3, [role="button"], [role="tab"], [role="menuitem"], [role="heading"]',
       );
       if (
         control &&

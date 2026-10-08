@@ -44,15 +44,75 @@ try {
   await waitText(page, 'h1', 'ホーム');
   assert.equal(
     await page.locator('#greeting').textContent(),
-    'こんばんは、haruka-ds さん！',
+    'こんにちは、haruka-ds さん！',
   );
   assert.equal(
     await page.locator('aside h2').textContent(),
     'よく使うリポジトリ',
   );
   assert.equal(
-    await page.locator('a[href="/pulls"]').first().textContent(),
-    '変更の提案',
+    await page.locator('#expanded-menu a[href="/pulls"]').textContent(),
+    'すべての変更の提案',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/feed"]').textContent(),
+    'フィード',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/issues"]').textContent(),
+    'すべての課題と相談',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/repos"]').textContent(),
+    'すべてのリポジトリ',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/projects"]').textContent(),
+    '作業計画',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/discussions"]').textContent(),
+    '話し合い',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/codespaces"]').textContent(),
+    'Codespaces',
+  );
+  assert.match(
+    await page
+      .locator('#expanded-menu a[href="/codespaces"]')
+      .getAttribute('title'),
+    /開発環境/,
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/copilot"]').textContent(),
+    'Copilot',
+  );
+  assert.equal(
+    await page.locator('#expanded-menu a[href="/mcp"]').textContent(),
+    'MCP registry',
+  );
+  assert.match(
+    await page.locator('#expanded-menu a[href="/mcp"]').getAttribute('title'),
+    /AI/,
+  );
+  assert.equal(
+    await page.locator('#expanded-menu button').textContent(),
+    'もっと見る',
+  );
+  assert.equal(await page.locator('#menu-repository').textContent(), 'Feed');
+  assert.equal(
+    await page.locator('#copilot-prompt').getAttribute('placeholder'),
+    '質問を入力。@ で関連情報を追加できます',
+  );
+  assert.equal(await page.locator('#copilot-prompt').inputValue(), 'Issues');
+  assert.equal(
+    await page.locator('#no-pulls').textContent(),
+    '変更の提案は見つかりませんでした。絞り込みを変えてみてください。',
+  );
+  assert.equal(
+    await page.locator('#no-issues').textContent(),
+    '課題と相談は見つかりませんでした。絞り込みを変えてみてください。',
   );
   assert.equal(await page.locator('#username').textContent(), 'haruka-ds');
   assert.equal(await page.locator('#repo-name').textContent(), 'Settings');
@@ -69,6 +129,7 @@ try {
   await page.goto('https://github.com/notifications');
   await waitText(page, 'h1', '通知');
   assert.equal(await page.locator('nav a').first().textContent(), '受信箱');
+  assert.equal(await page.locator('#search-label').textContent(), '通知を検索');
   assert.equal(
     await page.locator('#notification-search').getAttribute('placeholder'),
     '通知を検索',
@@ -80,6 +141,19 @@ try {
   assert.equal(
     await page.locator('#notification-subject').textContent(),
     'Settings',
+  );
+  assert.equal((await page.locator('#sort').textContent())?.trim(), '並べ替え: 新しい順');
+  assert.equal(
+    (await page.locator('#group').textContent())?.trim(),
+    'グループ分け: 日付',
+  );
+  assert.equal(
+    (await page.locator('#clutter-copy').textContent())?.trim(),
+    '既読の通知をまとめて完了にすると、受信箱を整理できます。',
+  );
+  assert.equal(
+    await page.locator('#inbox-copy').textContent(),
+    'ひと息ついて、自分の作業に集中しましょう。',
   );
   assert.equal(
     (await page.locator('#user-comment').textContent())?.trim(),
