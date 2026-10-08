@@ -9,14 +9,21 @@ const protectedSelector = [
   'samp',
   '[contenteditable]',
   '[role="textbox"]',
-  '.markdown-body',
-  '.markdown-preview',
-  '.readme',
   '.blob-wrapper',
   '.blob-code',
   '.react-code-view',
   '.js-file-line-container',
   '.file-content',
+  '.user-mention',
+  '[data-github-ja-ui]',
+].join(',');
+
+// Rendered prose is eligible for the separate, conservative content dictionary.
+// UI terms must never leak into an author's prose just because it contains a button.
+const proseSelector = [
+  '.markdown-body',
+  '.markdown-preview',
+  '.readme',
   '[data-testid="readme"]',
   '[data-testid="markdown-body"]',
   '.comment-body',
@@ -31,8 +38,23 @@ const protectedSelector = [
   '.release-body',
   '.discussion-comment',
   'article',
-  '.user-mention',
-  '[data-github-ja-ui]',
+].join(',');
+
+const identifierSelector = [
+  '[data-testid="repository-name"]',
+  '[data-testid="branch-name"]',
+  '[data-testid="branch-selector"]',
+  '[data-icv-name="Switch branches/tags"]',
+  '.overview-ref-selector',
+  '.ref-selector-button-text-container',
+  '[aria-label$=" branch" i]',
+  '[aria-label$=" tag" i]',
+  '[data-testid="file-tree"]',
+  '[data-testid="file-name"]',
+  '[data-testid="path"]',
+  '.react-directory-filename-column',
+  '.react-directory-row-name-cell',
+  '.js-navigation-open',
 ].join(',');
 
 const uiContainerSelector = [
@@ -125,10 +147,30 @@ function isKnownUiLink(link: Element, term?: Term): boolean {
 
 export function isProtectedElement(element: Element): boolean {
   if (closestAcrossRoots(element, protectedSelector)) return true;
+  if (closestAcrossRoots(element, identifierSelector)) return true;
+  if (isProseElement(element) && closestAcrossRoots(element, 'a')) return true;
+  const link = closestAcrossRoots(element, 'a[href]');
+  if (link) {
+    const href = link.getAttribute('href') ?? '';
+    try {
+      const url = new URL(href, location.href);
+      if (
+        url.origin === location.origin &&
+        /^\/[^/]+\/[^/]+\/(?:blob|tree)\//.test(url.pathname)
+      )
+        return true;
+    } catch {
+      // An invalid URL cannot establish an identifier context.
+    }
+  }
   if (closestAcrossRoots(element, '[hidden], [aria-hidden="true"]'))
     return true;
   if (element instanceof HTMLElement && element.isContentEditable) return true;
   return false;
+}
+
+export function isProseElement(element: Element): boolean {
+  return !!closestAcrossRoots(element, proseSelector);
 }
 
 function isPageScopedUi(element: Element, term?: Term): boolean {
@@ -158,6 +200,7 @@ function isPageScopedUi(element: Element, term?: Term): boolean {
 
 export function isTrustedUiElement(element: Element, term?: Term): boolean {
   if (isProtectedElement(element)) return false;
+  if (isProseElement(element)) return false;
   const link = closestAcrossRoots(element, 'a');
   if (link) return isKnownUiLink(link, term) && !isProtectedElement(link);
   const control = element.closest(uiControlSelector);

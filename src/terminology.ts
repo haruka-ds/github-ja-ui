@@ -399,6 +399,23 @@ export const terms: readonly Term[] = [
 
 export const dictionary = new Map(terms.map((term) => [term.original, term]));
 
+// A small, separately reviewed set of complete prose segments. Arbitrary
+// Markdown is not sent to a service or assembled across element boundaries.
+const contentTerms = new Map<string, Term>([
+  ['Getting started', { original: 'Getting started', label: '使い始める' }],
+  [
+    'Learn how to use this project.',
+    {
+      original: 'Learn how to use this project.',
+      label: 'このプロジェクトの使い方を確認しましょう。',
+    },
+  ],
+]);
+
+export function translateContent(value: string): Term | undefined {
+  return contentTerms.get(value.trim().replace(/\s+/g, ' '));
+}
+
 export function translate(value: string): Term | undefined {
   const original = value.trim().replace(/\s+/g, ' ');
   const exact = dictionary.get(original);

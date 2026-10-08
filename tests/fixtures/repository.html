@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <header>
+      <a id="owner" href="/haruka-ds">haruka-ds</a
+      ><a id="repo" href="/haruka-ds/github-ja-ui">github-ja-ui</a>
+    </header>
+    <nav aria-label="Repository navigation">
+      <a href="/haruka-ds/github-ja-ui/issues">Issues</a>
+      <a href="/haruka-ds/github-ja-ui/pulls">Pull requests</a>
+      <a href="/haruka-ds/github-ja-ui/actions">Actions</a>
+      <a href="/haruka-ds/github-ja-ui/projects">Projects</a>
+    </nav>
+    <button data-testid="branch-selector">
+      <span data-testid="branch-name">main</span>
+    </button>
+    <button
+      id="named-branch"
+      aria-label="Actions branch"
+      data-icv-name="Switch branches/tags"
+    >
+      Actions
+    </button>
+    <div data-testid="file-tree">
+      <a href="/haruka-ds/github-ja-ui/tree/main/.github/workflows"
+        >.github/workflows</a
+      >
+      <a href="/haruka-ds/github-ja-ui/tree/main/scripts">scripts</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/src">src</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/tests">tests</a>
+      <a href="/haruka-ds/github-ja-ui/blob/main/README.md">README.md</a>
+      <a href="/haruka-ds/github-ja-ui/blob/main/LICENSE">LICENSE</a>
+      <a href="/haruka-ds/github-ja-ui/blob/main/PRIVACY.md">PRIVACY.md</a>
+      <a href="/haruka-ds/github-ja-ui/blob/main/PRODUCT_CONCEPT.md"
+        >PRODUCT_CONCEPT.md</a
+      >
+      <a href="/haruka-ds/github-ja-ui/tree/main/Settings">Settings</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/Actions">Actions</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/Projects">Projects</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/Issues">Issues</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/Home">Home</a>
+      <a href="/haruka-ds/github-ja-ui/tree/main/Feed">Feed</a>
+    </div>
+    <button id="fork-icon">
+      <svg aria-hidden="true"></svg><span>Fork</span>
+    </button>
+    <button id="fork-split">F<span>ork</span></button>
+    <article class="markdown-body" data-testid="readme">
+      <h2 id="english-heading">Getting started</h2>
+      <p id="english-prose">Learn how to use this project.</p>
+      <!-- prettier-ignore -->
+      <p id="japanese-one">GitHub を使える人と使えない人の間にある、情報・機会の格差を縮めることを目指します。</p>
+      <!-- prettier-ignore -->
+      <p id="japanese-link">「日本語で読める」「操作の意味がわかる」「次に何をすればよいか推測できる」の三つを設計の目安にします。Mission と Concept は <a href="/haruka-ds/github-ja-ui/blob/main/PRODUCT_CONCEPT.md">PRODUCT_CONCEPT.md</a> にまとめています。</p>
+      <p id="normal-only">通常テキストのみ</p>
+      <p id="normal-then-link">通常テキスト <a href="/first">first</a></p>
+      <p id="link-then-normal"><a href="/first">first</a> 通常テキスト</p>
+      <p id="normal-link-normal">通常 <a href="/first">first</a> テキスト</p>
+      <p id="multiple-links">
+        <a href="/first">first</a> and <a href="/second">second</a>
+      </p>
+      <p id="english-link">
+        Learn how to use this project. <a href="/guide">Guide</a> Learn how to
+        use this project.
+      </p>
+      <p>
+        <code>Getting started</code>
+        <a href="/haruka-ds/github-ja-ui/blob/main/Getting%20started"
+          >Getting started</a
+        >
+      </p>
+    </article>
+    <input id="user-input" value="Settings" aria-label="Username" />
+  </body>
+</html>

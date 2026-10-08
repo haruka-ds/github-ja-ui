@@ -35,8 +35,9 @@ describe('translation engine', () => {
     engine.scan(document.body);
     expect(document.body.innerHTML).toBe(original);
     expect(isProtectedElement(document.querySelector('.markdown-body')!)).toBe(
-      true,
+      false,
     );
+    expect(isProtectedElement(document.querySelector('code')!)).toBe(true);
   });
 
   it('is idempotent and restores the original UI on OFF', () => {

@@ -1,6 +1,11 @@
 import { explanation } from './explanation';
-import { shouldTranslate, shouldTranslateAttribute } from './protection';
-import { translate, type Term } from './terminology';
+import {
+  isProseElement,
+  isProtectedElement,
+  shouldTranslate,
+  shouldTranslateAttribute,
+} from './protection';
+import { translate, translateContent, type Term } from './terminology';
 
 type TextRecord = { original: string; applied: string };
 type AttributeRecord = { original: string | null; applied: string };
@@ -98,8 +103,26 @@ export class TranslationEngine {
     const current = node.nodeValue ?? '';
     const existing = this.texts.get(node);
     if (existing && current === existing.applied) return;
-    const term = translate(current) ?? translateCompoundControlPart(node);
-    if (!term || !shouldTranslate(node, term)) return;
+    if (!current.trim() || !node.parentElement) return;
+    // Natural Japanese prose, including embedded English product names, is a
+    // no-op. A single Japanese character in a mixed UI label is not enough.
+    if (
+      /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(current) &&
+      (/[。！？、]/u.test(current) || /[\p{Script=Hiragana}]/u.test(current)) &&
+      !/^[A-Za-z][A-Za-z ]*[:：]/u.test(current.trim())
+    )
+      return;
+    const prose = isProseElement(node.parentElement);
+    const term = prose
+      ? translateContent(current)
+      : (translate(current) ?? translateCompoundControlPart(node));
+    if (
+      !term ||
+      (prose
+        ? isProtectedElement(node.parentElement)
+        : !shouldTranslate(node, term))
+    )
+      return;
     const leading = current.match(/^\s*/)?.[0] ?? '';
     const trailing = current.match(/\s*$/)?.[0] ?? '';
     const applied = `${leading}${term.label}${trailing}`;
@@ -107,7 +130,7 @@ export class TranslationEngine {
       this.texts.set(node, { original: current, applied });
       node.nodeValue = applied;
     }
-    if (term.description) {
+    if (!prose && term.description) {
       const control = node.parentElement?.closest(
         'button, summary, a, h1, h2, h3, [role="button"], [role="tab"], [role="menuitem"], [role="heading"]',
       );
@@ -122,6 +145,7 @@ export class TranslationEngine {
   }
 
   private processElement(element: Element): void {
+    this.processSplitFork(element);
     for (const attribute of ['aria-label', 'title', 'placeholder']) {
       const current = element.getAttribute(attribute);
       if (!current) continue;
@@ -138,6 +162,42 @@ export class TranslationEngine {
         this.applyAttribute(element, attribute, applied);
       }
     }
+  }
+
+  private processSplitFork(element: Element): void {
+    if (!element.matches('button, [role="button"], a[data-component="Button"]'))
+      return;
+    if (isProtectedElement(element) || isProseElement(element)) return;
+    if (element.querySelector('button, a, input, textarea')) return;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const nodes: Text[] = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode as Text;
+      if (
+        node.nodeValue?.trim() &&
+        node.parentElement &&
+        !node.parentElement.closest('svg, [aria-hidden="true"]')
+      )
+        nodes.push(node);
+    }
+    if (nodes.length < 2) return;
+    if (
+      nodes
+        .map((node) => node.nodeValue)
+        .join('')
+        .replace(/\s+/g, '') !== 'Fork'
+    )
+      return;
+    const term = translate('Fork');
+    if (!term || !shouldTranslate(nodes[0], term)) return;
+    nodes.forEach((node, index) => {
+      const original = node.nodeValue ?? '';
+      const applied = index === 0 ? term.label : '';
+      this.texts.set(node, { original, applied });
+      node.nodeValue = applied;
+    });
+    if (!element.hasAttribute('title'))
+      this.applyAttribute(element, 'title', explanation(term)!);
   }
 
   private applyAttribute(
