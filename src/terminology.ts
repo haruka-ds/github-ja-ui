@@ -2,8 +2,19 @@ export type Term = {
   original: string;
   label: string;
   description?: string;
-  contexts?: readonly ('home' | 'notifications' | 'settings')[];
-  surface?: 'page-copy';
+  contexts?: readonly (
+    | 'home'
+    | 'repository'
+    | 'issues'
+    | 'pulls'
+    | 'actions'
+    | 'projects'
+    | 'settings'
+    | 'search'
+    | 'profile'
+    | 'notifications'
+  )[];
+  surface?: 'page-copy' | 'empty-state' | 'form-label';
 };
 
 // Exact, context-independent UI strings only. User-authored text is filtered separately.
@@ -127,7 +138,11 @@ export const terms: readonly Term[] = [
     contexts: ['home', 'settings'],
     description: 'ブラウザから使える GitHub の開発環境です。',
   },
-  { original: 'Packages', label: 'パッケージ', contexts: ['settings'] },
+  {
+    original: 'Packages',
+    label: 'パッケージ',
+    contexts: ['settings', 'repository', 'profile'],
+  },
   {
     original: 'Copilot',
     label: 'Copilot',
@@ -262,30 +277,32 @@ export const terms: readonly Term[] = [
   { original: 'Previous', label: '前へ' },
   { original: 'Learn more', label: '詳しく見る' },
   { original: 'View all', label: 'すべて見る', contexts: ['home'] },
-  { original: 'Code', label: 'ファイル' },
+  { original: 'Code', label: 'コード' },
   {
     original: 'Issues',
     label: '課題と相談',
-    contexts: ['home'],
+    contexts: ['home', 'issues'],
     description:
       '不具合の報告や作業の相談をまとめる場所です。GitHub では Issues と呼びます。',
   },
   {
     original: 'Pull requests',
     label: '変更の提案',
-    contexts: ['home'],
+    contexts: ['home', 'pulls'],
     description:
       '変更を取り込んでもらうための提案です。GitHub では Pull request と呼びます。',
   },
   {
     original: 'Actions',
     label: '自動処理',
+    contexts: ['actions'],
     description:
       'テストや公開などの作業を自動で実行する機能です。GitHub では Actions と呼びます。',
   },
   {
     original: 'Projects',
     label: '作業計画',
+    contexts: ['projects'],
     description:
       '課題や作業の進み具合を整理する場所です。GitHub では Projects と呼びます。',
   },
@@ -326,11 +343,15 @@ export const terms: readonly Term[] = [
   { original: 'Download ZIP', label: 'ZIP でダウンロード' },
   { original: 'Create a new repository', label: '新しいリポジトリを作成' },
   { original: 'New repository', label: '新しいリポジトリ' },
-  { original: 'Add file', label: 'ファイルを追加' },
+  {
+    original: 'Add file',
+    label: 'ファイルを追加',
+    contexts: ['repository'],
+  },
   { original: 'Create new file', label: '新しいファイルを作成' },
   { original: 'Upload files', label: 'ファイルをアップロード' },
   { original: 'Go to file', label: 'ファイルを探す' },
-  { original: 'History', label: '変更履歴' },
+  { original: 'History', label: '変更履歴', contexts: ['repository'] },
   {
     original: 'Commits',
     label: '変更履歴',
@@ -354,7 +375,7 @@ export const terms: readonly Term[] = [
       '変更を分けて進めるための作業線です。GitHub では Branch と呼びます。',
   },
   { original: 'Tags', label: 'タグ' },
-  { original: 'Releases', label: '公開版' },
+  { original: 'Releases', label: '公開版', contexts: ['repository'] },
   { original: 'Compare', label: '変更を比較' },
   {
     original: 'Merge',
@@ -391,10 +412,242 @@ export const terms: readonly Term[] = [
   { original: 'Private', label: '非公開' },
   { original: 'Workflow runs', label: '自動処理の実行履歴' },
   { original: 'Run workflow', label: '自動処理を実行' },
-  { original: 'All workflows', label: 'すべての自動処理' },
+  {
+    original: 'All workflows',
+    label: 'すべての自動処理',
+    contexts: ['actions'],
+  },
   { original: 'New project', label: '新しい作業計画' },
   { original: 'All notifications', label: 'すべての通知' },
   { original: 'Mark as done', label: '確認済みにする' },
+  // Labels observed in the signed-in GitHub UI on 2026-10-09. Each value is
+  // exact; route, control, link destination, and prose checks gate its use.
+  { original: 'Open menu', label: 'メニューを開く' },
+  {
+    original: 'Open quick search dialog, type / to search ( forward slash )',
+    label: '検索を開く（/）',
+  },
+  { original: 'Create new...', label: '新しく作成' },
+  { original: 'Open user navigation menu', label: 'ユーザーメニューを開く' },
+  {
+    original: 'Search for repositories',
+    label: 'リポジトリを探す',
+    contexts: ['home'],
+  },
+  {
+    original: 'Pull request options',
+    label: '変更の提案の表示設定',
+    contexts: ['home'],
+  },
+  {
+    original: 'Issue options',
+    label: '課題と相談の表示設定',
+    contexts: ['home'],
+  },
+  { original: 'More items', label: 'その他' },
+  { original: 'Latest commit', label: '最新の変更', contexts: ['repository'] },
+  {
+    original: 'Folders and files',
+    label: 'フォルダーとファイル',
+    contexts: ['repository'],
+  },
+  { original: 'About', label: '概要', contexts: ['repository'] },
+  { original: 'Contributors', label: '参加者', contexts: ['repository'] },
+  {
+    original: 'Languages',
+    label: '使用言語',
+    contexts: ['repository', 'search'],
+  },
+  { original: 'Go to Branches page', label: '作業の分岐を見る' },
+  { original: 'Go to Tags page', label: 'タグを見る' },
+  { original: 'Assigned to me', label: '自分が担当' },
+  { original: 'Created by me', label: '自分が作成' },
+  { original: 'Recent activity', label: '最近の更新' },
+  {
+    original: 'Search issues',
+    label: '課題と相談を検索',
+    contexts: ['issues'],
+    surface: 'form-label',
+  },
+  { original: 'Clear filter', label: '検索条件を消す' },
+  { original: 'Filter by author', label: '作成者で絞り込む' },
+  { original: 'Filter by labels', label: '分類ラベルで絞り込む' },
+  { original: 'Filter by label', label: '分類ラベルで絞り込む' },
+  {
+    original: 'No results matched your search',
+    label: '検索に一致する項目がありません',
+    contexts: ['issues'],
+    surface: 'empty-state',
+  },
+  {
+    original: 'Try a different search query.',
+    label: '検索語を変えてみてください。',
+    contexts: ['issues', 'pulls'],
+    surface: 'empty-state',
+  },
+  { original: 'Authored by me', label: '自分が提案' },
+  { original: 'Involves me', label: '自分が関わる' },
+  { original: 'Review requests', label: 'レビュー依頼' },
+  {
+    original: 'Search pull requests',
+    label: '変更の提案を検索',
+    contexts: ['pulls'],
+    surface: 'form-label',
+  },
+  {
+    original: 'No pull requests matched your search',
+    label: '検索に一致する変更の提案はありません',
+    contexts: ['pulls'],
+    surface: 'empty-state',
+  },
+  { original: 'New workflow', label: '新しい自動処理' },
+  { original: 'Management', label: '管理', contexts: ['actions'] },
+  { original: 'Caches', label: 'キャッシュ' },
+  { original: 'Runners', label: '実行環境' },
+  { original: 'Usage metrics', label: '利用状況' },
+  { original: 'Performance metrics', label: '性能指標' },
+  { original: 'Workflow', label: '自動処理', contexts: ['actions'] },
+  { original: 'Event', label: '開始条件', contexts: ['actions'] },
+  { original: 'Status', label: '状態', contexts: ['actions'] },
+  { original: 'Actor', label: '実行した人', contexts: ['actions'] },
+  {
+    original: 'Filter workflow runs',
+    label: '実行履歴を絞り込む',
+    contexts: ['actions'],
+  },
+  {
+    original: 'Showing runs from all workflows',
+    label: 'すべての自動処理の実行履歴を表示中',
+    contexts: ['actions'],
+    surface: 'page-copy',
+  },
+  { original: 'Link a project', label: '作業計画を関連付ける' },
+  {
+    original: 'Repository projects',
+    label: 'このリポジトリの作業計画',
+    contexts: ['projects'],
+  },
+  {
+    original: 'Search projects',
+    label: '作業計画を検索',
+    contexts: ['projects'],
+    surface: 'form-label',
+  },
+  {
+    original: 'Search by name…',
+    label: '名前で検索…',
+    contexts: ['projects'],
+  },
+  {
+    original: 'No projects found',
+    label: '作業計画が見つかりません',
+    contexts: ['projects'],
+    surface: 'empty-state',
+  },
+  {
+    original: 'There are no projects linked to this repository yet.',
+    label: 'このリポジトリに関連付けられた作業計画はまだありません。',
+    contexts: ['projects'],
+    surface: 'empty-state',
+  },
+  { original: 'Recently updated', label: '最近更新した順' },
+  { original: 'Access', label: '利用権限', contexts: ['settings'] },
+  {
+    original: 'Code, planning, and automation',
+    label: 'コード・計画・自動処理',
+    contexts: ['settings'],
+  },
+  { original: 'Integrations', label: '連携', contexts: ['settings'] },
+  { original: 'Archives', label: '記録', contexts: ['settings'] },
+  { original: 'Company', label: '所属', contexts: ['settings'] },
+  { original: 'Location', label: '所在地', contexts: ['settings'] },
+  {
+    original: 'Tell us a little bit about yourself',
+    label: '自己紹介を入力',
+    contexts: ['settings'],
+  },
+  {
+    original:
+      'Your name may appear around GitHub where you contribute or are mentioned. You can remove it at any time.',
+    label:
+      '名前は、参加した場所や言及された場所に表示されることがあります。いつでも削除できます。',
+    contexts: ['settings'],
+    surface: 'page-copy',
+  },
+  {
+    original: 'Other users will see the time difference from their local time.',
+    label: 'ほかの人には、その人の現地時間との差が表示されます。',
+    contexts: ['settings'],
+    surface: 'page-copy',
+  },
+  { original: 'Display current local time', label: '現在の現地時刻を表示' },
+  { original: 'Update profile', label: 'プロフィールを更新' },
+  { original: 'Update preferences', label: '設定を更新' },
+  {
+    original: 'Contributions & activity',
+    label: '参加履歴と活動',
+    contexts: ['settings'],
+  },
+  {
+    original: 'Profile settings',
+    label: 'プロフィール設定',
+    contexts: ['settings'],
+  },
+  {
+    original: 'Jobs profile',
+    label: '仕事用プロフィール',
+    contexts: ['settings'],
+  },
+  {
+    original: 'Trending settings',
+    label: '人気リポジトリの設定',
+    contexts: ['settings'],
+  },
+  {
+    original: 'Preferred spoken language',
+    label: '優先する言語',
+    contexts: ['settings'],
+  },
+  { original: 'Save jobs profile', label: '仕事用プロフィールを保存' },
+  { original: 'Save Trending settings', label: '人気リポジトリの設定を保存' },
+  { original: 'Filter by', label: '絞り込み条件', contexts: ['search'] },
+  { original: 'Advanced', label: '詳細条件', contexts: ['search'] },
+  { original: 'Users', label: 'ユーザー', contexts: ['search'] },
+  { original: 'More languages...', label: 'ほかの言語…', contexts: ['search'] },
+  { original: 'Owner', label: '所有者', contexts: ['search'] },
+  { original: 'Size', label: 'サイズ', contexts: ['search'] },
+  {
+    original: 'Number of followers',
+    label: 'フォロワー数',
+    contexts: ['search'],
+  },
+  {
+    original: 'Number of forks',
+    label: 'コピーされた数',
+    contexts: ['search'],
+  },
+  {
+    original: 'Number of stars',
+    label: 'お気に入り登録数',
+    contexts: ['search'],
+  },
+  { original: 'Date created', label: '作成日', contexts: ['search'] },
+  { original: 'Date pushed', label: '最終更新日', contexts: ['search'] },
+  {
+    original: 'Sort by: Best match',
+    label: '並べ替え: 関連度順',
+    contexts: ['search'],
+  },
+  { original: 'Edit profile', label: 'プロフィールを編集' },
+  { original: 'Customize your pins', label: '固定表示を編集' },
+  { original: 'Set status', label: '状態を設定' },
+  { original: 'Contribution settings', label: '参加履歴の設定' },
+  {
+    original: 'Popular repositories',
+    label: 'よく見られるリポジトリ',
+    contexts: ['profile'],
+  },
+  { original: 'Notification settings', label: '通知の設定' },
 ];
 
 export const dictionary = new Map(terms.map((term) => [term.original, term]));

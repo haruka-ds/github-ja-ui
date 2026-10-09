@@ -74,9 +74,17 @@ const uiControlSelector =
 type PageContext = NonNullable<Term['contexts']>[number];
 
 function pageContext(): PageContext | undefined {
-  if (location.pathname === '/') return 'home';
-  if (location.pathname.startsWith('/notifications')) return 'notifications';
-  if (location.pathname.startsWith('/settings')) return 'settings';
+  const path = location.pathname;
+  if (path === '/') return 'home';
+  if (path.startsWith('/notifications')) return 'notifications';
+  if (path.startsWith('/settings')) return 'settings';
+  if (path === '/search') return 'search';
+  if (/^\/[^/]+\/[^/]+\/issues\/?$/.test(path)) return 'issues';
+  if (/^\/[^/]+\/[^/]+\/pulls\/?$/.test(path)) return 'pulls';
+  if (/^\/[^/]+\/[^/]+\/actions\/?$/.test(path)) return 'actions';
+  if (/^\/[^/]+\/[^/]+\/projects\/?$/.test(path)) return 'projects';
+  if (/^\/[^/]+\/[^/]+\/?$/.test(path)) return 'repository';
+  if (/^\/[^/]+\/?$/.test(path)) return 'profile';
   return undefined;
 }
 
@@ -132,10 +140,72 @@ function isKnownUiLink(link: Element, term?: Term): boolean {
     /^\/[^/]+\/[^/]+\/?$/.test(path) &&
     closestAcrossRoots(
       link,
-      'nav[aria-label*="Repository"], [role="navigation"][aria-label*="Repository"]',
+      'nav[aria-label="Repository"], nav[aria-label="リポジトリ"]',
     )
   )
     return true;
+  if (
+    term?.original === 'New issue' &&
+    /^\/[^/]+\/[^/]+\/issues\/new\/choose\/?$/.test(path) &&
+    pageContext() === 'issues'
+  )
+    return true;
+  if (
+    term?.original === 'New pull request' &&
+    /^\/[^/]+\/[^/]+\/compare\/?$/.test(path) &&
+    pageContext() === 'pulls'
+  )
+    return true;
+  if (
+    ['Labels', 'Milestones'].includes(term?.original ?? '') &&
+    /^\/[^/]+\/[^/]+\/(labels|milestones)\/?$/.test(path) &&
+    ['issues', 'pulls'].includes(pageContext() ?? '')
+  )
+    return true;
+  if (
+    pageContext() === 'actions' &&
+    ((term?.original === 'New workflow' &&
+      /^\/[^/]+\/[^/]+\/actions\/new\/?$/.test(path)) ||
+      (['Caches', 'Runners', 'Usage metrics', 'Performance metrics'].includes(
+        term?.original ?? '',
+      ) &&
+        /^\/[^/]+\/[^/]+\/actions\/(caches|runners|metrics\/(usage|performance))\/?$/.test(
+          path,
+        )))
+  )
+    return true;
+  if (
+    ['Conversation', 'Commits', 'Checks', 'Files changed'].includes(
+      term?.original ?? '',
+    ) &&
+    /^\/[^/]+\/[^/]+\/pull\/\d+(?:\/(commits|checks|changes))?\/?$/.test(
+      location.pathname,
+    ) &&
+    /^\/[^/]+\/[^/]+\/pull\/\d+(?:\/(commits|checks|changes))?\/?$/.test(
+      path,
+    ) &&
+    path.match(/^\/([^/]+)\/([^/]+)\/pull\/(\d+)/)?.[0] ===
+      location.pathname.match(/^\/([^/]+)\/([^/]+)\/pull\/(\d+)/)?.[0]
+  )
+    return true;
+  if (
+    /^\/[^/]+\/?$/.test(path) &&
+    closestAcrossRoots(link, 'nav[aria-label="User"]')
+  ) {
+    const tab = new URL(href, location.href).searchParams.get('tab');
+    if (
+      (tab === null && term?.original === 'Overview') ||
+      (
+        {
+          repositories: 'Repositories',
+          projects: 'Projects',
+          packages: 'Packages',
+          stars: 'Stars',
+        } as Record<string, string>
+      )[tab ?? ''] === term?.original
+    )
+      return true;
+  }
   return (
     link.matches('a[data-component="Button"]') &&
     ['Star', 'Unstar', 'Fork', 'Watch', 'Unwatch'].includes(
@@ -176,6 +246,13 @@ export function isProseElement(element: Element): boolean {
 function isPageScopedUi(element: Element, term?: Term): boolean {
   const context = pageContext();
   if (!context || !term?.contexts?.includes(context)) return false;
+  if (term.surface === 'empty-state')
+    return !!closestAcrossRoots(element, '[class*="Blankslate-"]');
+  if (term.surface === 'form-label')
+    return !!closestAcrossRoots(
+      element,
+      'label, [class*="FormControl-ControlVerticalLayout"]',
+    );
   if (term.surface === 'page-copy' && closestAcrossRoots(element, 'main'))
     return true;
   if (closestAcrossRoots(element, 'h1, h2, h3, h4, [role="heading"]'))
@@ -198,11 +275,65 @@ function isPageScopedUi(element: Element, term?: Term): boolean {
   );
 }
 
+function isKnownReferencedLabel(element: Element, term?: Term): boolean {
+  if (
+    !element.id ||
+    !closestAcrossRoots(element, 'header') ||
+    closestAcrossRoots(element, protectedSelector) ||
+    closestAcrossRoots(element, identifierSelector) ||
+    isProseElement(element) ||
+    closestAcrossRoots(element, '[hidden]') ||
+    ![
+      'All repositories',
+      'All issues',
+      'All pull requests',
+      'Open menu',
+      'Open quick search dialog, type / to search ( forward slash )',
+      'Create new...',
+      'Open user navigation menu',
+    ].includes(term?.original ?? '')
+  )
+    return false;
+  const expectedPath = (
+    {
+      'All repositories': '/repos',
+      'All issues': '/issues',
+      'All pull requests': '/pulls',
+    } as Record<string, string>
+  )[term!.original];
+  if (!expectedPath) {
+    return [
+      ...document.querySelectorAll('header button[aria-labelledby]'),
+    ].some(
+      (button) =>
+        button.className.includes('IconButton') &&
+        button
+          .getAttribute('aria-labelledby')
+          ?.split(/\s+/)
+          .includes(element.id),
+    );
+  }
+  for (const link of document.querySelectorAll(
+    'header a[data-component="IconButton"][aria-labelledby][href]',
+  )) {
+    if (
+      link.getAttribute('href') === expectedPath &&
+      link.getAttribute('aria-labelledby')?.split(/\s+/).includes(element.id)
+    )
+      return true;
+  }
+  return false;
+}
+
 export function isTrustedUiElement(element: Element, term?: Term): boolean {
+  // GitHub's icon-button tooltip is aria-hidden until shown, but the same
+  // exact span supplies the button's accessible name via aria-labelledby.
+  if (isKnownReferencedLabel(element, term)) return true;
   if (isProtectedElement(element)) return false;
   if (isProseElement(element)) return false;
   const link = closestAcrossRoots(element, 'a');
   if (link) return isKnownUiLink(link, term) && !isProtectedElement(link);
+  if (term?.original === 'Code') return false;
   const control = element.closest(uiControlSelector);
   if (control) return !isProtectedElement(control);
   if (closestAcrossRoots(element, uiContainerSelector)) return true;
@@ -236,6 +367,11 @@ export function shouldTranslateAttribute(
       !!term &&
       (context === 'notifications' ||
         context === 'settings' ||
+        (context === 'issues' && term.original === 'Search issues') ||
+        (context === 'pulls' && term.original === 'Search pull requests') ||
+        (context === 'actions' && term.original === 'Filter workflow runs') ||
+        (context === 'projects' &&
+          ['Search projects', 'Search by name…'].includes(term.original)) ||
         !!closestAcrossRoots(element, 'header, [role="search"]'))
     );
   }

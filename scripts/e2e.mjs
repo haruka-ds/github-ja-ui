@@ -13,6 +13,18 @@ const pages = {
   '/notifications': await fixture('notifications'),
   '/settings/profile': await fixture('settings'),
   '/haruka-ds/github-ja-ui': await fixture('repository'),
+  '/haruka-ds/github-ja-ui/issues':
+    '<main><a id="new-issue" href="/haruka-ds/github-ja-ui/issues/new/choose">New issue</a><label>Search issues</label><div class="prc-Blankslate-Blankslate"><h2 id="issue-empty">No results matched your search</h2></div><article id="issue-title">New issue</article><span data-testid="repository-name">Issues</span></main>',
+  '/haruka-ds/github-ja-ui/pulls':
+    '<main><a id="new-pull" href="/haruka-ds/github-ja-ui/compare">New pull request</a><label>Search pull requests</label><div class="prc-Blankslate-Blankslate"><h2 id="pull-empty">No pull requests matched your search</h2></div><article id="pull-title">New pull request</article></main>',
+  '/haruka-ds/github-ja-ui/actions':
+    '<main><h2 id="all-workflows">All workflows</h2><h3>Management</h3><a id="new-workflow" href="/haruka-ds/github-ja-ui/actions/new">New workflow</a><button id="run-filter">Filter workflow runs</button><article id="workflow-name">All workflows</article><span data-testid="branch-name">main</span></main>',
+  '/haruka-ds/github-ja-ui/projects':
+    '<main><h2 id="repo-projects">Repository projects</h2><button id="link-project">Link a project</button><div class="prc-Blankslate-Blankslate"><h2 id="project-empty">No projects found</h2><p>There are no projects linked to this repository yet.</p></div><article id="project-name">Repository projects</article></main>',
+  '/search':
+    '<main><h2 id="filter-by">Filter by</h2><h3 id="languages">Languages</h3><button id="sort-best">Sort by: Best match</button><article id="result-title">Filter by</article><input id="query" value="github-ja-ui"></main>',
+  '/haruka-ds':
+    '<nav aria-label="User"><a id="overview" href="/haruka-ds">Overview</a><a id="profile-projects" href="/haruka-ds?tab=projects">Projects</a></nav><main><button id="edit-profile">Edit profile</button><h2 id="popular">Popular repositories</h2><article id="repo-description">Popular repositories</article><span data-testid="repository-name">github-ja-ui</span></main>',
 };
 const errors = [];
 const context = await chromium.launchPersistentContext(profile, {
@@ -43,6 +55,9 @@ try {
 
   await page.goto('https://github.com/');
   await waitText(page, 'h1', 'ホーム');
+  assert.equal(await page.locator('#all-repos-label').textContent(), 'すべてのリポジトリ');
+  assert.equal(await page.locator('#open-menu-label').textContent(), 'メニューを開く');
+  assert.equal(await page.locator('a[aria-labelledby="all-repos-label"]').getAttribute('href'), '/repos');
   assert.equal(
     await page.locator('#greeting').textContent(),
     'こんにちは、haruka-ds さん！',
@@ -305,6 +320,76 @@ try {
     'Repository: identifiers, prose, Japanese, Fork, links and DOM PASS',
   );
 
+  for (const [path, checks, protectedChecks] of [
+    [
+      '/haruka-ds/github-ja-ui/issues',
+      [
+        ['#new-issue', '課題や相談を作成'],
+        ['#issue-empty', '検索に一致する項目がありません'],
+      ],
+      [
+        ['#issue-title', 'New issue'],
+        ['[data-testid="repository-name"]', 'Issues'],
+      ],
+    ],
+    [
+      '/haruka-ds/github-ja-ui/pulls',
+      [
+        ['#new-pull', '変更を提案'],
+        ['#pull-empty', '検索に一致する変更の提案はありません'],
+      ],
+      [['#pull-title', 'New pull request']],
+    ],
+    [
+      '/haruka-ds/github-ja-ui/actions',
+      [
+        ['#all-workflows', 'すべての自動処理'],
+        ['#new-workflow', '新しい自動処理'],
+      ],
+      [
+        ['#workflow-name', 'All workflows'],
+        ['[data-testid="branch-name"]', 'main'],
+      ],
+    ],
+    [
+      '/haruka-ds/github-ja-ui/projects',
+      [
+        ['#repo-projects', 'このリポジトリの作業計画'],
+        ['#project-empty', '作業計画が見つかりません'],
+      ],
+      [['#project-name', 'Repository projects']],
+    ],
+    [
+      '/search',
+      [
+        ['#filter-by', '絞り込み条件'],
+        ['#sort-best', '並べ替え: 関連度順'],
+      ],
+      [['#result-title', 'Filter by']],
+    ],
+    [
+      '/haruka-ds',
+      [
+        ['#overview', '概要'],
+        ['#profile-projects', '作業計画'],
+        ['#popular', 'よく見られるリポジトリ'],
+      ],
+      [
+        ['#repo-description', 'Popular repositories'],
+        ['[data-testid="repository-name"]', 'github-ja-ui'],
+      ],
+    ],
+  ]) {
+    await page.goto(`https://github.com${path}`);
+    for (const [selector, expected] of checks)
+      await waitText(page, selector, expected);
+    for (const [selector, expected] of protectedChecks)
+      assert.equal(await page.locator(selector).textContent(), expected);
+  }
+  console.log(
+    'Six route-specific official UI and protected-content fixtures PASS',
+  );
+
   await page.goto('https://github.com/settings/profile');
   await waitText(page, 'h1', '設定');
 
@@ -348,7 +433,7 @@ try {
   await page.evaluate(() => {
     const menu = document.createElement('div');
     menu.setAttribute('role', 'menu');
-    menu.innerHTML = '<button id="dynamic-dismiss">Dismiss</button>';
+    menu.innerHTML = '<button id="dynamic-dismiss">Dismiss</button><a id="dynamic-settings" role="menuitem" href="/settings/notifications">Notification settings</a>';
     document.body.append(menu);
     const host = document.createElement('div');
     host.attachShadow({ mode: 'open' }).innerHTML =
@@ -356,6 +441,7 @@ try {
     document.body.append(host);
   });
   await waitText(page, '#dynamic-dismiss', '閉じる');
+  await waitText(page, '#dynamic-settings', '通知の設定');
   await page.waitForFunction(() =>
     [...document.querySelectorAll('body > div')].some(
       (host) =>
