@@ -20,6 +20,30 @@
         </button>
         <button id="group"><span>Group by:</span> <span>Date</span></button>
       </div>
+      <ul role="menu" id="sort-options">
+        <li role="none">
+          <form role="none" action="/notifications/beta/update_sort_order">
+            <button role="menuitemradio"><span>Newest to oldest</span></button>
+          </form>
+        </li>
+        <li role="none">
+          <form role="none" action="/notifications/beta/update_sort_order">
+            <button role="menuitemradio"><span>Oldest to newest</span></button>
+          </form>
+        </li>
+      </ul>
+      <ul role="menu" id="group-options">
+        <li role="none">
+          <form role="none" action="/notifications/beta/update_view_preference">
+            <button role="menuitemradio"><span>Repository</span></button>
+          </form>
+        </li>
+        <li role="none">
+          <form role="none" action="/notifications/beta/update_view_preference">
+            <button role="menuitemradio"><span>Date</span></button>
+          </form>
+        </li>
+      </ul>
       <div id="search-label">Search notifications</div>
       <input
         id="notification-search"

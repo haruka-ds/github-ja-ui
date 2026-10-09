@@ -54,6 +54,29 @@ function translateCompoundControlPart(node: Text): Term | undefined {
   return undefined;
 }
 
+function translateNotificationMenuChoice(node: Text): Term | undefined {
+  if (!location.pathname.startsWith('/notifications')) return undefined;
+  const part = node.nodeValue?.trim();
+  const button = node.parentElement?.closest('button[role="menuitemradio"]');
+  if (!part || !button?.closest('[role="menu"]')) return undefined;
+  const action = button.closest('form')?.getAttribute('action');
+  const choices: Record<string, Record<string, string>> = {
+    '/notifications/beta/update_sort_order': {
+      'Newest to oldest': '新しい順',
+      'Oldest to newest': '古い順',
+    },
+    '/notifications/beta/update_view_preference': {
+      Date: '日付',
+      Repository: 'リポジトリ',
+      None: 'なし',
+    },
+  };
+  const label = action ? choices[action]?.[part] : undefined;
+  return label
+    ? { original: part, label, contexts: ['notifications'] }
+    : undefined;
+}
+
 export class TranslationEngine {
   private readonly texts = new Map<Text, TextRecord>();
   private readonly attributes = new Map<
@@ -115,7 +138,9 @@ export class TranslationEngine {
     const prose = isProseElement(node.parentElement);
     const term = prose
       ? translateContent(current)
-      : (translate(current) ?? translateCompoundControlPart(node));
+      : (translateNotificationMenuChoice(node) ??
+        translate(current) ??
+        translateCompoundControlPart(node));
     if (
       !term ||
       (prose

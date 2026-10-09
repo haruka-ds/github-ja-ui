@@ -151,6 +151,18 @@ try {
     (await page.locator('#group').textContent())?.trim(),
     'グループ分け: 日付',
   );
+  assert.deepEqual(
+    (await page.locator('#sort-options button').allTextContents()).map((text) =>
+      text.trim(),
+    ),
+    ['新しい順', '古い順'],
+  );
+  assert.deepEqual(
+    (await page.locator('#group-options button').allTextContents()).map(
+      (text) => text.trim(),
+    ),
+    ['リポジトリ', '日付'],
+  );
   assert.equal(
     (await page.locator('#clutter-copy').textContent())?.trim(),
     '既読の通知をまとめて完了にすると、受信箱を整理できます。',
@@ -193,7 +205,10 @@ try {
     await page.locator('[data-testid="branch-name"]').textContent(),
     'main',
   );
-  assert.equal((await page.locator('#named-branch').textContent())?.trim(), 'Actions');
+  assert.equal(
+    (await page.locator('#named-branch').textContent())?.trim(),
+    'Actions',
+  );
   const identifiers = [
     '.github/workflows',
     'scripts',
@@ -379,7 +394,10 @@ try {
       await page.locator('[data-testid="branch-name"]').textContent(),
       'main',
     );
-    assert.equal((await page.locator('#named-branch').textContent())?.trim(), 'Actions');
+    assert.equal(
+      (await page.locator('#named-branch').textContent())?.trim(),
+      'Actions',
+    );
     assert.deepEqual(
       await page.locator('[data-testid="file-tree"] a').allTextContents(),
       identifiers,

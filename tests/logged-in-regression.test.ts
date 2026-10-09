@@ -134,6 +134,16 @@ describe('logged-in GitHub UI regression', () => {
     expect(document.querySelector('#group')?.textContent?.trim()).toBe(
       'グループ分け: 日付',
     );
+    expect(
+      [...document.querySelectorAll('#sort-options button')].map((button) =>
+        button.textContent?.trim(),
+      ),
+    ).toEqual(['新しい順', '古い順']);
+    expect(
+      [...document.querySelectorAll('#group-options button')].map((button) =>
+        button.textContent?.trim(),
+      ),
+    ).toEqual(['リポジトリ', '日付']);
     expect(document.querySelector('#clutter-copy')?.textContent?.trim()).toBe(
       '既読の通知をまとめて完了にすると、受信箱を整理できます。',
     );
@@ -263,6 +273,39 @@ describe('logged-in GitHub UI regression', () => {
     expect(sort.textContent).toBe('並べ替え: 古い順');
     engine.setEnabled(false);
     expect(sort.textContent).toBe('Sort by: Oldest to newest');
+    observer.disconnect();
+  });
+
+  it('translates newly opened notification choices and restores their exact text', async () => {
+    show('notifications', '/notifications');
+    document.querySelector('#sort-options')?.remove();
+    document.querySelector('#group-options')?.remove();
+    const engine = new TranslationEngine();
+    const observer = observeUi(engine, document.body);
+    const menu = document.createElement('ul');
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML =
+      '<li role="none"><form role="none" action="/notifications/beta/update_sort_order"><button role="menuitemradio"><span>Oldest to newest</span></button></form></li>' +
+      '<li role="none"><form role="none" action="/notifications/beta/update_view_preference"><button role="menuitemradio"><span>Date</span></button></form></li>';
+    document.querySelector('main')?.append(menu);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const choices = [...menu.querySelectorAll('button')];
+    expect(choices.map((choice) => choice.textContent)).toEqual([
+      '古い順',
+      '日付',
+    ]);
+    engine.setEnabled(false);
+    expect(choices.map((choice) => choice.textContent)).toEqual([
+      'Oldest to newest',
+      'Date',
+    ]);
+    engine.setEnabled(true);
+    engine.scan(menu);
+    expect(choices.map((choice) => choice.textContent)).toEqual([
+      '古い順',
+      '日付',
+    ]);
+    expect(choices[0]?.getAttribute('title')).toBeNull();
     observer.disconnect();
   });
 });
