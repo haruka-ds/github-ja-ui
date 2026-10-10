@@ -56,6 +56,45 @@ beforeEach(() => {
 });
 
 describe('repository, prose and DOM invariants', () => {
+  it('translates only the observed directory table headers', () => {
+    show();
+    const fixture = document.createElement('section');
+    fixture.innerHTML = `
+      <div data-testid="directory-content">
+        <table aria-labelledby="folders-and-files"><thead><tr>
+          <th><span>Name</span></th><th>Last commit message</th><th>Last commit date</th>
+        </tr></thead><tbody><tr><td><a href="/haruka-ds/github-ja-ui/blob/main/Name">Name</a></td>
+          <td>Last commit message</td><td>Last commit date</td></tr></tbody></table>
+      </div>
+      <table><thead><tr><th>Name</th><th>Last commit message</th></tr></thead></table>
+      <button>Name</button>
+      <p lang="ja">名前と変更日は変更しません。</p>`;
+    document.body.append(fixture);
+    const table = fixture.querySelector('table')!;
+    const before = structure(fixture);
+    const engine = new TranslationEngine();
+    engine.scan(fixture);
+    expect(
+      [...table.querySelectorAll('thead th')].map((el) => el.textContent),
+    ).toEqual(['名前', '最終変更', '変更日']);
+    expect(
+      [...table.querySelectorAll('tbody td')].map((el) => el.textContent),
+    ).toEqual(['Name', 'Last commit message', 'Last commit date']);
+    expect(fixture.querySelector(':scope > table')?.textContent).toBe(
+      'NameLast commit message',
+    );
+    expect(fixture.querySelector('button')?.textContent).toBe('Name');
+    expect(fixture.querySelector('p')?.textContent).toBe('名前と変更日は変更しません。');
+    expect(structure(fixture)).toEqual(before);
+    engine.scan(fixture);
+    expect(table.querySelector('th')?.textContent).toBe('名前');
+    engine.setEnabled(false);
+    expect(table.querySelector('th')?.textContent).toBe('Name');
+    engine.setEnabled(true);
+    engine.scan(fixture);
+    expect(table.querySelector('th')?.textContent).toBe('名前');
+  });
+
   it('translates UI and reviewed English prose without changing identifiers or Japanese', () => {
     show();
     const engine = new TranslationEngine();

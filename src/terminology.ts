@@ -14,7 +14,7 @@ export type Term = {
     | 'profile'
     | 'notifications'
   )[];
-  surface?: 'page-copy' | 'empty-state' | 'form-label';
+  surface?: 'page-copy' | 'empty-state' | 'form-label' | 'file-table-header';
 };
 
 // Exact, context-independent UI strings only. User-authored text is filtered separately.
@@ -150,7 +150,6 @@ export const terms: readonly Term[] = [
     description: 'GitHub の AI アシスタントです。',
   },
   { original: 'Pages', label: 'Web ページ公開', contexts: ['settings'] },
-  { original: 'Name', label: '名前', contexts: ['settings'] },
   {
     original: 'Profile picture',
     label: 'プロフィール画像',
@@ -452,6 +451,24 @@ export const terms: readonly Term[] = [
     contexts: ['repository'],
   },
   { original: 'About', label: '概要', contexts: ['repository'] },
+  {
+    original: 'Name',
+    label: '名前',
+    contexts: ['settings', 'repository'],
+    surface: 'file-table-header',
+  },
+  {
+    original: 'Last commit message',
+    label: '最終変更',
+    contexts: ['repository'],
+    surface: 'file-table-header',
+  },
+  {
+    original: 'Last commit date',
+    label: '変更日',
+    contexts: ['repository'],
+    surface: 'file-table-header',
+  },
   { original: 'Contributors', label: '参加者', contexts: ['repository'] },
   {
     original: 'Languages',

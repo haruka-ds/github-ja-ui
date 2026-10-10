@@ -93,7 +93,26 @@ Chrome 標準翻訳を原文の英語にし、更新した `dist/` の 0.1.4 を
 
 Repository → Issues → Pull requests → Actions → Repository を通常の GitHub リンクで移動し、各ページで追加した代表 UI が翻訳された。公開の `microsoft/vscode` Issue #100000 と #340684、PR #340683 では、タイトル・本文・コメント・username・branch・commit SHA の原形を確認した。実通知の投稿内容と実在する project 項目は未確認。0.1.4 の自動テストではリンク・ボタン・入力の DOM 境界、再処理、ON/OFF、SPA、動的追加を確認するが、それを実サイトの全状態での目視確認済み扱いにはしない。
 
-実サイトの通知内容と Projects の実在項目、未操作のボタンやダイアログ、全画面幅でのレイアウト、各画面の Console は網羅できていません。上記の英語の取りこぼしも残っています。現時点では Chrome Web Store 公開に進みません。固定 fixture と Chromium E2E の成功を実サイトの確認済み扱いにはしていません。
+### 0.1.4 Release Candidate 実機監査（2026-10-10）
+
+ログイン済み Chrome で標準翻訳を英語の原文にし、0.1.4 の拡張を使って実サイトを再確認した。以下は今回実際に観察した範囲であり、固定 fixture の結果を実機確認に含めない。保留16項目の A/B/C 分類と根拠は [UI カバレッジ棚卸し](docs/UI_COVERAGE_0.1.4.md) を参照。B のファイル一覧列名3件だけを限定して対応したため、生成物の版は 0.1.5 とした。
+
+| 画面 | Console | 通常幅・狭めのデスクトップ幅での表示 | 実データ・未確認事項 |
+| --- | --- | --- | --- |
+| Home | 拡張由来の error / warning なし | 主要カード・ナビゲーションの欠けや重なりなし | 展開状態の全操作は未確認 |
+| Repository | 拡張由来の error / warning なし | Fork「自分用にコピー」、ナビゲーション、ファイル一覧に破綻なし | README の日本語原文を保持。末尾の PRODUCT_CONCEPT.md だけがリンク1件で、前後は通常テキスト。href とクリック先を再確認 |
+| Issues | 拡張由来の error / warning なし | フィルター、作成ボタン、空状態に破綻なし | 前回確認した公開 Issue の本文・コメント保護を自動テストでも継続確認。今回の再読は未実施 |
+| Pull requests | 拡張由来の error / warning なし | フィルター、作成ボタン、空状態に破綻なし | 前回確認した公開 PR の本文・branch 保護を自動テストでも継続確認。今回の再読は未実施 |
+| Actions | 拡張由来の error / warning なし | ナビゲーション、フィルター、実行一覧に破綻なし | 実行ログ内部は未確認 |
+| Projects | 拡張由来の error / warning なし | リポジトリ側の空状態と公開 Project の表に破綻なし | `microsoft/vscode` の実 Project で project 名、item title、assignee、状態・優先度などの field value、issue / PR link、repository 識別子が原形 |
+| Settings | 拡張由来の error / warning なし | サイドメニュー、見出し、フォームの折り返しに破綻なし | 保存を伴う操作は未実施 |
+| Search | 拡張由来の error / warning なし | フィルターと結果表示に破綻なし | query と repository 名は原形 |
+| Profile | 拡張由来の error / warning なし | ナビゲーション、プロフィール、repository カードに破綻なし | 個別メニューは未確認 |
+| Notifications | 拡張由来の error / warning なし | 並べ替え、グループ分け、空状態に破綻なし | 受信箱・保存済み・完了が空で、実通知 title・本文・link destination は未確認 |
+
+Console には複数画面で GitHub 本体の `/github-copilot/chat/entitlement` への 404 が出た。拡張由来の例外とは分けて記録した。0.1.4 の README リンク段落では、`PRODUCT_CONCEPT.md` の href が `/haruka-ds/github-ja-ui/blob/main/PRODUCT_CONCEPT.md` で、クリック先も一致した。「にまとめています。」と末尾の「ます」はリンク外で、日本語原文も変化していなかった。
+
+実通知データの保護は未確認のため、Chrome Web Store 公開準備は保留する。実データを観察できた時点で title・repository・username・本文・リンク先を確認する。自動テストの成功を実通知の確認済み扱いにはしない。
 
 ## ライセンス
 

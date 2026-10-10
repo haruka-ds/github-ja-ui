@@ -104,3 +104,28 @@
 | Notifications | 実通知のタイトル・本文 | user-authored content | 原形維持 | 対象外 | 低 / 未確認：受信箱が空 |
 
 `Code` と `All repositories` は辞書不足ではなく、前者は翻訳済み navigation の aria-label を信頼判定が認めず、後者は `aria-hidden` の tooltip が icon link の `aria-labelledby` に使われている構造を判定できなかった。今回の処理は、完全一致の語と実サイトで観察したリンク先・要素の組合せに限定した。`innerHTML` 置換、任意の部分一致、保護対象の緩和はしていない。
+
+## Release Candidate 監査による保留16項目の再分類（2026-10-10）
+
+0.1.4 のログイン済み Chrome で実サイトを再確認した結果。A は保留継続、B は DOM 条件を限定して安全に対応、C は翻訳対象外。元の棚卸し件数を変更せず、0.1.5 で B の3項目だけ対応した。
+
+| 分類 | 画面・原文 | 判断 |
+| --- | --- | --- |
+| A | Home: Dashboard preview options | 状態依存のポップアップで今回対象状態を再現できず、要素を限定できない |
+| A | Home: View changelog → | 外部リンクと矢印を含むため、リンク内テキスト境界の確認が必要 |
+| B | Repository: Name | 実 DOM の `[data-testid="directory-content"] table[aria-labelledby="folders-and-files"] thead th` 内だけを対象にできる。ファイル名 `Name` は保持 |
+| B | Repository: Last commit message | 同じ表の `thead th` だけを対象にできる。コミットメッセージ本文は保持 |
+| B | Repository: Last commit date | 同じ表の `thead th` だけを対象にできる。日付値は保持 |
+| A | Repository: Pin haruka-ds/github-ja-ui | aria-label に識別子を含み、安全な部分単位の変更方法が未確定 |
+| A | Repository: View commit history for this file. | ファイル行のリンク先と重なる表示で、対象範囲の検証が未完了 |
+| A | Actions: Attestations | 意味を誤解させない説明・訳語の検討が必要 |
+| A | Actions: Actions: haruka-ds/github-ja-ui | repository 識別子を含む複合見出し |
+| A | Actions: 8 workflow runs | 動的数値と単位の境界を限定する条件が未確定 |
+| A | Settings: haruka-ds (haruka-ds) settings | username を2か所含む複合見出し |
+| A | Settings: ORCID・privacy・consent の長文 | 法的意味と内部リンク境界を慎重に確認する必要がある |
+| A | Search: repositories Search Results · github-ja-ui | query を含む複合見出し |
+| A | Search: 49 results | 動的件数を含む見出し |
+| A | Profile: 19 contributions in the last year | 動的件数を含み、意味変換の精度も要検討 |
+| C | Notifications: 実通知のタイトル・本文 | 投稿者が作成した内容なので翻訳対象外。受信箱が空で実データ保護は未確認 |
+
+合計 A 12件、B 3件、C 1件。B は 0.1.5 で追加した。A は件数を減らす目的で無理に変換しない。

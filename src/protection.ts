@@ -246,6 +246,13 @@ export function isProseElement(element: Element): boolean {
 function isPageScopedUi(element: Element, term?: Term): boolean {
   const context = pageContext();
   if (!context || !term?.contexts?.includes(context)) return false;
+  if (term.surface === 'file-table-header')
+    return context === 'settings'
+      ? !!closestAcrossRoots(element, 'label')
+      : !!closestAcrossRoots(
+          element,
+          '[data-testid="directory-content"] table[aria-labelledby="folders-and-files"] thead th',
+        );
   if (term.surface === 'empty-state')
     return !!closestAcrossRoots(element, '[class*="Blankslate-"]');
   if (term.surface === 'form-label')
@@ -331,6 +338,8 @@ export function isTrustedUiElement(element: Element, term?: Term): boolean {
   if (isKnownReferencedLabel(element, term)) return true;
   if (isProtectedElement(element)) return false;
   if (isProseElement(element)) return false;
+  if (term?.surface === 'file-table-header' && pageContext() === 'repository')
+    return isPageScopedUi(element, term);
   const link = closestAcrossRoots(element, 'a');
   if (link) return isKnownUiLink(link, term) && !isProtectedElement(link);
   if (term?.original === 'Code') return false;
