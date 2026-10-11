@@ -114,6 +114,22 @@ Console には複数画面で GitHub 本体の `/github-copilot/chat/entitlement
 
 実通知データの保護は未確認のため、Chrome Web Store 公開準備は保留する。実データを観察できた時点で title・repository・username・本文・リンク先を確認する。自動テストの成功を実通知の確認済み扱いにはしない。
 
+### 0.1.5 最終公開前監査（2026-10-11）
+
+前段の「実通知未確認」は 0.1.4 監査時点の記録。今回、ログイン済み Chrome で標準翻訳が英語（原文）のままであることと、読み込み直した `dist/` が 0.1.5 であることを確認した。既存通知は空だったため、自分の `haruka-ds/github-ja-ui` の通知を一時的に「All Activity」、Actions の通知を一時的に成功時も受信する設定にし、既存 CI を再実行した。公開 Issue・PR・mention は作成していない。実 CI 通知を確認した後、両設定を元の「Participating and @mentions」「Failed workflows only」に戻した。
+
+| Notifications の確認対象 | 実サイトの結果 | 状態 |
+| --- | --- | --- |
+| 実通知のタイトル・説明 | `haruka-ds/github-ja-ui – CI #10` と `CI workflow run, Attempt #2/#3 succeeded for main branch` は ON/OFF で原形維持。後者の #2→#3 は GitHub の再実行結果の更新 | **実CI通知で確認済み** |
+| 識別子 | 通知行の repository `haruka-ds/github-ja-ui`、actor `@haruka-ds`、branch `main` は原形。リンク先の実行ページで SHA `9b4f444` とコミットタイトルも原形 | **実CI通知と遷移先で確認済み** |
+| Issue/PR タイトル・label・投稿者の自由記述 | 今回の通知種別には存在しない | **実通知では未確認** |
+| 公式 UI | 見出し、受信箱、絞り込み、検索、並べ替え、グループ分け、通知の設定は日本語。並べ替え・グループ分けのメニュー選択肢も表示後に日本語 | **実CI通知の表示中に確認済み** |
+| リンク・DOM | 通知行には実行ページへのリンクと `@haruka-ds` へのリンクが各1件。ON/OFF でタイトル、2件の href、リンク境界、要素数は同一。実行ページへのクリック先も確認 | **実CI通知で確認済み** |
+| ON/OFF | ON で公式 UI が日本語、OFF で英語へ復元、再ONで日本語。通知タイトル・説明・repository・username・href は不変 | **実CI通知で確認済み** |
+| 動的更新 | 並べ替え、グループ分け、未読フィルターの切替後も通知内容とリンク先は原形。CI 再実行による Attempt #3 への更新後も同様 | **実CI通知で確認済み** |
+
+通知行の一部の公式 UI（例：`Select all`、`Watched repositories`）は英語のまま残る。意図的に保留した A 分類12件と同様、今回翻訳を拡張しない。Issue/PR 通知特有のタイトル・label・本文は実データがなく未確認だが、今回確認した実CI通知、公開 Issue/PR の既存実機確認、Protection Layer の自動回帰テストに破損は見つかっていない。**公開判定は B（軽微な未確認範囲はあるが公開可能）**。この判定は公開作業の実施を意味しない。
+
 ## ライセンス
 
 [MIT](LICENSE)
