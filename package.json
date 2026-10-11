@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "package:store": "npm run build && sh scripts/package-store.sh",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

@@ -133,3 +133,7 @@ Console には複数画面で GitHub 本体の `/github-copilot/chat/entitlement
 ## ライセンス
 
 [MIT](LICENSE)
+
+## Chrome Web Store 提出準備
+
+0.1.5 の提出文面、素材要件、権限とプライバシーの申告案、残作業は [提出準備資料](docs/CHROME_WEB_STORE_0.1.5.md) にまとめています。`npm run package:store` は最新の `dist/` から `release/github-ja-ui-0.1.5.zip` を生成します。現時点では専用アイコンとストア画像が未作成のため、この ZIP は監査用の候補であり、ストアへ提出する完成パッケージではありません。

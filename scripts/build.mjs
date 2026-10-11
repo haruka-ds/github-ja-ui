@@ -20,4 +20,5 @@ await Promise.all([
   }),
   copyFile('manifest.json', 'dist/manifest.json'),
   copyFile('src/popup.html', 'dist/popup.html'),
+  copyFile('LICENSE', 'dist/LICENSE'),
 ]);

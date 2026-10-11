@@ -1,7 +1,7 @@
 # プライバシー
 
-GitHub JA UI は GitHub の画面上でローカルに文字列を照合し、表示を変更します。外部翻訳 API、バックエンド、広告、Analytics、Telemetry、追跡ピクセルはありません。閲覧履歴やページ内容を収集・送信しません。
+GitHub JA UI は `github.com` の表示内容を端末内で読み取り、GitHub 公式 UI と判定した文字列だけを照合して表示を変更します。処理したページ内容、username、閲覧履歴、入力内容を開発者が収集・保存・受信することはありません。外部翻訳 API、バックエンド、広告、Analytics、Telemetry、追跡ピクセルはなく、拡張からこれらの情報を外部へ送信しません。
 
-Chrome 権限は `storage` だけを使い、ON/OFF 設定を端末内に保存します。コンテンツスクリプトは `https://github.com/*` のみで動きます。GitHub 以外のホスト権限は要求しません。
+Chrome 権限は `storage` だけを使い、ON/OFF 設定の真偽値だけを `chrome.storage.local` に端末内保存します。設定は拡張のポップアップから変更でき、拡張を削除すると Chrome によって保存領域も削除されます。コンテンツスクリプトは `https://github.com/*` のみで動きます。GitHub 以外のホスト権限は要求しません。データを開発者や第三者と共有しません。
 
 翻訳の対象外として、README、Markdown、ソースコード、Issue・PR 本文とコメント、入力欄などを保護します。ただし GitHub の DOM は変わるため、保護判定に改善が必要な場合は Issue または PR で報告してください。
